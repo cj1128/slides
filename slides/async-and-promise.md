@@ -367,3 +367,9 @@ asyncThing1()
 >我们要渲染一段故事，getStory()接口返回一个story对象，包含标题（heading）和每个章节的URL（charpterURLs），如何做到最优化渲染？
 
 试试看用Callback和Promise两种方法来编写，感受一下Promise的优点😎。
+
+---
+class: center, middle, inverse
+layout: false
+
+# Thank you😜
