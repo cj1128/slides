@@ -171,14 +171,14 @@ Promise也叫*Future*，中文含义为*承诺*，顾名思义，Promise使用�
 我们可以使用ES6提供的`Promise`构造函数来构造Promise。
 
 ```javascript
-// p1为一个在1000ms以后reolve的Promise，resolve的值为"ok"
+// p1为一个在1000ms以后Resolve的Promise，resolve的值为"ok"
 var p1 = new Promise(function(resolve, reject) {
   setTimeout(function() {
     resolve("ok")
   }, 1000)
 })
 
-// p2为一个在1000ms后rejected的Promise，rejected的值为"error"
+// p2为一个在1000ms后Reject的Promise，rejected的值为"error"
 var p2 = new Promise(function(resolve, reject) {
   setTimeout(function() {
     reject("error")
@@ -208,7 +208,7 @@ p.then(val => {
 
 # Catch is a syntax sugar
 
-实际上，`catch`只是一个语法糖，Promise只有一个核心方法`then`，`then`方法接收两个函数，第一个参数为Resolve时执行的函数，第二个参数为Rejecte时执行的函数。
+实际上，`catch`只是一个语法糖，Promise只有一个核心方法`then`，`then`方法接收两个函数，第一个参数为Resolve时执行的函数，第二个参数为Reject时执行的函数。
 
 `catch(func)`等于`then(null, func)`
 
@@ -256,14 +256,14 @@ p.then(val => {
 下面我们来看一些常用的Promise辅助函数。
 
 ```javascript
-// 构建一个以val立即resolved的Promise
+// 构建一个以val立即Resolve的Promise
 Promise.resolve(val) 
 
-// 构建一个以val立即resolved的Promise
+// 构建一个以val立即Reject的Promise
 Promise.reject(val) 
 
-// 构建一个Promise，在所有Promise resolve以后resolve，
-// 在任一Promise reject以后reject
+// 构建一个Promise，在所有Promise Resolve以后Resolve
+// 在任一Promise Reject以后Reject
 Promise.all([p1, p2, p3]) 
 ```
 
