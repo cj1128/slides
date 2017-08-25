@@ -171,14 +171,14 @@ Promise也叫*Future*，中文含义为*承诺*，顾名思义，Promise使用�
 我们可以使用ES6提供的`Promise`构造函数来构造Promise。
 
 ```javascript
-// p1为一个在1000ms以后Resolve的Promise，resolve的值为"ok"
+// p1为一个在1000ms以后以 "ok" 值Resolve的Promise
 var p1 = new Promise(function(resolve, reject) {
   setTimeout(function() {
     resolve("ok")
   }, 1000)
 })
 
-// p2为一个在1000ms后Reject的Promise，rejected的值为"error"
+// p2为一个在1000ms后以 "error" 值Reject的Promise
 var p2 = new Promise(function(resolve, reject) {
   setTimeout(function() {
     reject("error")
