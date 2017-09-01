@@ -390,14 +390,14 @@ ES7借鉴`C#`，引入了`async`和`await`关键字，用来进一步简化Promi
 
 ```javascript
 // 声明一个异步函数
-async a() {
+async function a() {
   reutrn 123
 }
 
 // 调用一个异步函数返回一个Promise
 a().then(val => console.log(val)) // 输出：123
 
-async b() {
+async function b() {
   const v = await a() // v的值为123
   console.log(v)
 }
@@ -412,15 +412,15 @@ b() // 输出：123
 
 ```javascript
 function getData() {
-  return downloadData
+  return downloadData()
     .then(val => processData(val))
     .catch(err => {
-      return downloadFallbackData.then(val => processData(val))
+      return downloadFallbackData().then(val => processData(val))
     })
 }
 ```
 
-使用`async`和`await`重构以后，更加清楚，和同步代码看起来一模一样了~
+使用`async`和`await`重构以后，更加清楚，和同步代码看起来一模一样了
 
 ```javascript
 async function getData() {
