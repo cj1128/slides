@@ -364,7 +364,20 @@ asyncThing1()
 
 思考如下问题：
 
->我们要渲染一段故事，getStory()接口返回一个story对象，包含标题（heading）和每个章节的URL（charpterURLs），如何做到最优化渲染？
+>我们要渲染一段故事，`getStory`函数返回一个story对象，包含标题（heading）和每个章节的URL（charpterURLs），`fetchCharpter`函数可以获取到章节内容。渲染原则是：先标题，后章节，章节需要按顺序来渲染，先第一章，再第二章，再第三章。如何做到最优化渲染？
+
+```javascript
+// 以下为一个错误的实现
+getStory(storyURL, story => {
+  render(story.header)
+  story.charpterURLs.forEach(url => {
+    fetchCharpter(url, content => {
+      render(content) 
+    })
+  })
+})
+
+```
 
 试试看用Callback和Promise两种方法来编写，感受一下Promise的优点😎。
 
@@ -439,3 +452,51 @@ class: center, middle, inverse
 layout: false
 
 # Thank you😜
+
+---
+# Quiz Answer: Callback
+
+首先我们来定义最佳渲染策略：每个章节并行获取，但是串行渲染。
+
+我们先来考虑回调的解决方案，我们必须要做一个状态管理，即第几章的数据已经渲染。
+
+```javascript
+const rendered = {}
+const content = {}
+
+getStory(storyURL, res => {
+  render(res.header)
+  res.charpterURLs.forEach((url, i) => {
+    fetchChapter(url, res => {
+      content[i] = res // 暂时存储内容
+      renderChapter(res, i)
+    })
+  })
+})
+
+const renderChapter = (res, i) =>{
+  // 渲染时首先检查上一章是否渲染
+  if(i !== 0 && rendered[i-1] === false) return 
+  render(res)
+  rendered[i] = true
+  renderChapter(content[i+1], i+1)
+}
+```
+
+---
+# Quiz Answer: Promise
+
+再来看看Promise的解决方案，干净，简单，利落。
+
+```javascript
+getStory(storyURL)
+  .then(story => {
+    render(story.header)
+    return story.charpterURLs.map(url => fetchCharpter(url))
+      .reduce((acc, p) => {
+        return acc.then(() => p).then(res => {
+          render(res)
+        })
+      }, Promise.resolve())
+  })
+```
