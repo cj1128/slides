@@ -3,14 +3,84 @@
 <head>
   <meta charset="UTF-8">
   <title>CJ Ting's Slides</title>
+  <link rel="stylesheet" type="text/css" href="normalize.css">
+  <style type="text/css">
+  body {
+    background: #F9F9F9;
+    font-size: 16px;
+  }
+
+  .container {
+    max-width: 1024px;
+    margin: auto;
+  }
+
+  header {
+    padding: 15px 0;
+  }
+  header > h1 {
+    text-align: center;
+    font-family: "Roboto";
+    font-weight: 300;
+    font-size: 50px;
+    color: #1f1e25;
+  }
+
+  .items {
+    margin: 50px auto 0 auto;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  .item {
+    width: 30%;
+    box-shadow: 0 0px 5px 1px #ddd;
+    cursor: pointer;
+    margin-bottom: 40px;
+  }
+  .item:hover {
+    box-shadow: 0 0px 6px 2px #bbb;
+  }
+  .item > div {
+    background-size: cover;
+    background-position: 50% 50%;
+    padding-top: 100%;
+  }
+  .item p {
+    background: white;
+    margin: 0;
+    padding: 20px 0;
+    font-family: Roboto;
+    text-align: center;
+    font-size: 1.2rem;
+  }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <header>
+      <h1>My Slides🌟</h1>
+    </header>
 
-<ul>
-  <li>
-    <a href="async-and-promise">Async && Promise</a>
-  </li>
-</ul>
+    <div class="items">
+      <div class="item" data-slug="async-and-promise">
+        <div data-cover="http://ww1.sinaimg.cn/large/9b85365dgy1fkc40w2mszj20m80m93zb"></div>
+        <p slug="async-and-promise">Async && Promise</p>
+      </div>
+    </div>
+  </div>
 
+  <script type="text/javascript">
+    var items = [].slice.call(document.querySelectorAll(".item"))
+    items.forEach(function(item) {
+      item.addEventListener("click", function(evt) {
+        var slug = item.dataset.slug
+        var url = `//${location.host}${location.pathname}template.html?title=${slug}`
+        window.open(url)
+      })
+      var img = item.querySelector("div")
+      img.style.backgroundImage = `url(${img.dataset.cover})`
+    })
+  </script>
 </body>
 </html>
