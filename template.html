@@ -3,7 +3,8 @@
 <head>
   <title></title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-  <link href="./font.css" rel="stylesheet">
+  <link href="normalize.css" rel="stylesheet">
+  <link href="font/font.css" rel="stylesheet">
   <link rel="icon" type="image/png" href="favicon-32x32.png" sizes="32x32" />
   <link rel="icon" type="image/png" href="favicon-16x16.png" sizes="16x16" />
   <style type="text/css">
@@ -112,6 +113,24 @@
         scroll: false,
       },
     })
+
+    // init websocket control
+    var ws = new WebSocket(`ws://${location.host}/ws`)
+    ws.onerror = () => console.log("WebSocket error")
+    ws.onopen = () => console.log("WebSocket connection established")
+    ws.onclose = () => console.log("WebSocket connection closed")
+    ws.onmessage = evt => {
+      switch(evt.data) {
+        case "gotoNextSlide":
+          slideshow.gotoNextSlide()
+          break
+        case "gotoPreviousSlide":
+          slideshow.gotoPreviousSlide()
+          break
+        default:
+          console.log("Unknown message:", msg)
+      }
+    }
   </script>
 </body>
 </html>

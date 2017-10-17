@@ -1,0 +1,14 @@
+{
+  "name": "my-slides",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:fate-lovely/slides.git",
+  "author": "CJ Ting <fatelovely1128@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "4.16.2",
+    "internal-ip": "3.0.1",
+    "qrcode-terminal": "0.11.0",
+    "ws": "3.2.0"
+  }
+}

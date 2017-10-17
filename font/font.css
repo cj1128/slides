@@ -16,3 +16,10 @@
   font-weight: 400;
   src: local('Roboto'), local('Roboto-Regular'), url('Roboto_400_normal.woff') format('woff');
 }
+@font-face {
+    font-family: 'nanum_penregular';
+    src: url('nanumpenscript-regular-webfont.woff2') format('woff2'),
+         url('nanumpenscript-regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}

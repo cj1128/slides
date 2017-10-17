@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>CJ Ting's Slides</title>
   <link rel="stylesheet" type="text/css" href="normalize.css">
+  <link rel="stylesheet" type="text/css" href="font/font.css">
   <style type="text/css">
   body {
     background: #F9F9F9;
@@ -15,21 +16,16 @@
     margin: auto;
   }
 
-  header {
-    padding: 15px 0;
-  }
   header > h1 {
     text-align: center;
-    font-family: "Roboto";
-    font-weight: 300;
-    font-size: 50px;
-    color: #1f1e25;
+    font-family: nanum_penregular;
+    font-size: 80px;
+    color: #484848;
   }
 
   .items {
     margin: 50px auto 0 auto;
     display: flex;
-    justify-content: space-between;
     flex-wrap: wrap;
   }
   .item {
@@ -37,7 +33,12 @@
     box-shadow: 0 0px 5px 1px #ddd;
     cursor: pointer;
     margin-bottom: 40px;
+    margin-left: 5%;
   }
+  .item:first-child{
+    margin-left: 0;
+  }
+
   .item:hover {
     box-shadow: 0 0px 6px 2px #bbb;
   }
@@ -59,13 +60,18 @@
 <body>
   <div class="container">
     <header>
-      <h1>My Slides🌟</h1>
+      <h1>CJ Ting's Slides</h1>
     </header>
 
     <div class="items">
       <div class="item" data-slug="async-and-promise">
         <div data-cover="http://ww1.sinaimg.cn/large/9b85365dgy1fkc40w2mszj20m80m93zb"></div>
         <p slug="async-and-promise">Async && Promise</p>
+      </div>
+
+      <div class="item" data-slug="bitcoin-and-blockchain">
+        <div data-cover="http://ww1.sinaimg.cn/large/9b85365dgy1fkjvzk1c7rj20dw0dwjrk"></div>
+        <p slug="async-and-promise">Bitcoin && Blockchain</p>
       </div>
     </div>
   </div>
