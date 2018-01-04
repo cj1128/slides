@@ -17,6 +17,10 @@
       font-family: "Yanone Kaffeesatz", sans-serif;
     }
 
+    h3 {
+      text-align: right;
+    }
+
     .remark-slide-number {
       font-size: 0.7rem;
     }
@@ -50,20 +54,38 @@
       margin: auto;
     }
 
+    .bigfont {
+      font-size: 2em;
+    }
+
+    .middlefont {
+      font-size: 1.5em;
+    }
+
     /* small code */
     .code-s .remark-code {
       font-size: 0.9rem;
     }
 
     /* common elements */
+    ul, ol {
+      text-align: left;
+      line-height: 2em;
+    }
+
     a {
       color: #6c6ccc;
+    }
+
+    p {
+      line-height: 1.5em;
     }
 
     h1, h2, h3, h4, h5, h6 {
       font-weight: normal;
       margin-top: 10px;
       margin-bottom: 0;
+      line-height: 2em;
     }
 
     em {
@@ -108,7 +130,7 @@
     var slideshow = remark.create({
       sourceUrl: "slides/" + title + ".md",
       highlightLines: true,
-      highlightStyle: "github",
+      highlightStyle: "tomorrow",
       navigation: {
         scroll: false,
       },
