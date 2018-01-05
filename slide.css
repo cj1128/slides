@@ -116,14 +116,6 @@ video {
   margin: auto;
 }
 
-.bigfont {
-  font-size: 2em;
-}
-
-.middlefont {
-  font-size: 1.5em;
-}
-
 .two-columns {
   display: flex;
   justify-content: space-between;
@@ -138,4 +130,3 @@ video {
 .tip::before {
   content: "Tip: ";
 }
-

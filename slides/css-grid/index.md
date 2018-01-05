@@ -121,15 +121,13 @@ html, body {
 }
 ```
 
----
-
 一个简单的`2x3`栅格系统就做好了。
 
 ![](http://ww1.sinaimg.cn/large/9b85365dgy1fn4sgbodu3j20n40cxweo)
 
 ---
 
-### unit/fr
+### fr
 
 上图中，每个格子占据的尺寸是固定的，为`100px * 50px`的矩形，不管父元素多大，格子只有这么大，这显然不够响应式。
 
@@ -155,7 +153,7 @@ html, body {
 
 ---
 
-### function/repeat
+### repeat
 
 可以看到，上面我们在定义栅格的时候，在重复写`1fr`，考虑到这是一个常见情况，CSS提供了`repeat`函数来减轻我们的负担。
 

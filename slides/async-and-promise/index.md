@@ -1,28 +1,23 @@
-class: center, middle, inverse
+class: cover
 
 # Async && Promise
 
 ---
-class: center, middle, inverse
+class: center
 
-# Async
+## what is Async?
 
----
-layout: true
-
-### Async
+我们都知道JS是一个*异步*的语言，那究竟什么是异步？
 
 ---
-
-# What's Async?
-
-我们都知道JS是一个*异步*的语言，那么问题来了：什么是异步？
-
---
 
 理解异步，我们需要首先理解另一个概念：*同步*。
 
-同步指的是**前面的代码执行完毕以后，后面的代码才会执行**。而异步与之相对，**前面的代码没有执行完毕，后面的代码就开始执行**。
+同步指的是：**前面的代码执行完毕以后，后面的代码才会执行**。
+
+--
+
+而异步与之相对：**前面的代码没有执行完毕，后面的代码就开始执行**。
 
 ```javascript
 sendMessage() // 这是一个同步调用
@@ -33,12 +28,13 @@ m() // m函数调用时，我们无法确定消息是否发出了，可能发出
 ```
 
 ---
+class: center
 
-# Why Async?
+## Why Async?
 
-异步解决了什么问题？
+为什么需要异步？异步解决了什么问题？
 
---
+---
 
 考虑如下代码。
 
@@ -63,15 +59,15 @@ var val = calcSomething()
 ```
 
 ---
-class: code-s
+class: center
 
-# Problem with Async
+## Problem with Async
 
 异步又引入了什么问题？
 
---
+---
 
-**编程复杂度**。
+答案很简单：**编程复杂度**。
 
 对机器来说，异步是一个高效的方案，但对人来说，异步却不吻合人类的思考模型。人类的思维是线性的，即按顺序思考问题，但异步却不是线性的。举个简单的例子，我们要完成`a`，`b`，`c`三件事，彼此无关，等三件事都做完了以后，打印"ok!"。
 
@@ -96,13 +92,16 @@ c(callback)
 
 
 ---
+class: center
 
-# Async in JS
+## Async in JS
+
+---
 
 在JS中，主要有以下几个异步API:
 
-- AJAX(XMLHTTPRequest)
-- setTimeout / setInterval
+- `AJAX(XMLHTTPRequest)`
+- `setTimeout / setInterval`
 
 我们可以利用`setTimeout`来构造自己的异步函数。
 
@@ -117,7 +116,7 @@ function myAsyncFunc(callback) {
 ---
 name: callback
 
-# Callback Hell
+### Callback Hell
 
 异步函数因为立即返回，因此自然需要一种机制来让我们在函数执行完毕以后采取操作，最自然的做法就是回调。但是在复杂的异步情况下，回调会带来问题。
 
@@ -148,13 +147,7 @@ layout: false
 
 ---
 
-layout: true
-
-### Promise
-
----
-
-# Concept
+### Concept
 
 Promise也叫*Future*，中文含义为*承诺*，顾名思义，Promise使用一个对象来封装异步状态，这个对象承诺在未来给你一个值。
 
@@ -166,7 +159,7 @@ Promise也叫*Future*，中文含义为*承诺*，顾名思义，Promise使用�
 
 ---
 
-# Construct Promise
+### Construct Promise
 
 我们可以使用ES6提供的`Promise`构造函数来构造Promise。
 
@@ -188,7 +181,7 @@ var p2 = new Promise(function(resolve, reject) {
 
 ---
 
-# Core Methods
+### Core Methods
 
 对于Promise对象，我们有两个核心方法来操作它，每个方法都接收一个函数作为参数。
 
@@ -206,7 +199,7 @@ p.then(val => {
 
 ---
 
-# Catch is a syntax sugar
+### Catch is a syntax sugar
 
 实际上，`catch`只是一个语法糖，Promise只有一个核心方法`then`，`then`方法接收两个函数，第一个参数为Resolve时执行的函数，第二个参数为Reject时执行的函数。
 
@@ -223,7 +216,7 @@ p2.then(val => {
 
 ---
 
-# Thenable
+### Thenable
 
 每一个Promise调用`then`以后，都会返回一个新的Promise，从而实现链式调用。
 
@@ -251,7 +244,7 @@ p.then(val => {
 
 ---
 
-# Common Utils
+### Common Utils
 
 下面我们来看一些常用的Promise辅助函数。
 
@@ -268,9 +261,8 @@ Promise.all([p1, p2, p3])
 ```
 
 ---
-class: code-s
 
-# Promise Made Easy
+### Promise Made Easy
 
 现在，我们来用Promise来解决之前的[回调地狱](#callback)问题。
 
@@ -303,7 +295,7 @@ makePromise(1000)
 
 ---
 
-# Better Way
+### Better Way
 
 上面的Promise解法虽然看起来比回调的更清楚，因为使用扁平的方法调用替代了嵌套的回调，但是似乎并没有多么的*高级*，其实Promise的威力不止于此，我们来看一个更加高级的解法。
 
@@ -323,9 +315,8 @@ makePromise(1000)
 ```
 
 ---
-class: code-s
 
-# Promise Flow
+### Promise Flow
 
 Promise通过简洁的方法调用(`then`和`catch`)来管理异步状态，从而使得复杂的异步调用关系变得十分清晰。
 
@@ -360,7 +351,11 @@ asyncThing1()
 ![](http://ww1.sinaimg.cn/large/9b85365dgy1fiv1fg6spaj20pm0mwgpg)
 
 ---
-# Quiz: how to render a story?
+class: center
+
+## Quiz: how to render a story?
+
+---
 
 思考如下问题：
 
@@ -382,18 +377,13 @@ getStory(storyURL, story => {
 试试看用Callback和Promise两种方法来编写，感受一下Promise的优点😎。
 
 ---
-class: center, middle, inverse
-layout: false
+class: center
 
-# Async & Await
-
----
-layout: true
-
-### async && await
+## Async & Await
 
 ---
-# We love syntax sugar
+
+### We love syntax sugar
 
 ES7借鉴`C#`，引入了`async`和`await`关键字，用来进一步简化Promise的编写，用法非常简单。
 
@@ -419,7 +409,8 @@ b() // 输出：123
 ```
 
 ---
-# Better and cleaner code
+
+### Better and cleaner code
 
 考虑下面的Promise代码，下载数据，如果出错，下载备份数据，然后处理数据，返回。
 
@@ -448,13 +439,16 @@ async function getData() {
 ```
 
 ---
-class: center, middle, inverse
-layout: false
+class: cover
 
 # Thank you😜
 
 ---
-# Quiz Answer: Callback
+class: center
+
+## Quiz Answer: Callback
+
+---
 
 首先我们来定义最佳渲染策略：每个章节并行获取，但是串行渲染。
 
@@ -484,7 +478,6 @@ const renderChapter = (res, i) =>{
 ```
 
 ---
-# Quiz Answer: Promise
 
 再来看看Promise的解决方案，干净，简单，利落。
 
