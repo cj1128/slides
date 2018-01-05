@@ -5,57 +5,7 @@
   <title>CJ Ting's Slides</title>
   <link rel="stylesheet" type="text/css" href="normalize.css">
   <link rel="stylesheet" type="text/css" href="font/font.css">
-  <style type="text/css">
-  body {
-    background: #F9F9F9;
-    font-size: 16px;
-  }
-
-  .container {
-    max-width: 1024px;
-    margin: auto;
-  }
-
-  header > h1 {
-    text-align: center;
-    font-family: nanum_penregular;
-    font-size: 80px;
-    color: #484848;
-  }
-
-  .items {
-    margin: 50px auto 0 auto;
-    display: flex;
-    flex-wrap: wrap;
-  }
-  .item {
-    width: 30%;
-    box-shadow: 0 0px 5px 1px #ddd;
-    cursor: pointer;
-    margin-bottom: 40px;
-    margin-left: 5%;
-  }
-  .item:first-child{
-    margin-left: 0;
-  }
-
-  .item:hover {
-    box-shadow: 0 0px 6px 2px #bbb;
-  }
-  .item > div {
-    background-size: cover;
-    background-position: 50% 50%;
-    padding-top: 100%;
-  }
-  .item p {
-    background: white;
-    margin: 0;
-    padding: 20px 0;
-    font-family: Roboto;
-    text-align: center;
-    font-size: 1.2rem;
-  }
-  </style>
+  <link rel="stylesheet" type="text/css" href="index.css">
 </head>
 <body>
   <div class="container">
@@ -81,7 +31,7 @@
     items.forEach(function(item) {
       item.addEventListener("click", function(evt) {
         var slug = item.dataset.slug
-        var url = `//${location.host}${location.pathname}template.html?title=${slug}`
+        var url = `//${location.host}${location.pathname}slide.html?title=${slug}`
         window.open(url)
       })
       var img = item.querySelector("div")
