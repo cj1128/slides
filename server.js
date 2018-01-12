@@ -33,6 +33,7 @@ server.listen(port, () => {
   const host = InternalIP.v4.sync()
   const url = `http://${host}:${port}`
   console.log("Server is listening on", url)
+
   const controlURL = url + "/control.html"
   console.log("Control page:", controlURL)
   qrcode.generate(controlURL, {small: true})

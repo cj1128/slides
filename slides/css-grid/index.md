@@ -381,7 +381,7 @@ class: center
 
 最终我们要实现的效果如下图所示：
 
-<video controls autoplay src="/slides/css-grid/video1.mp4" width="80%" loop></video>
+<video controls autoplay src="slides/css-grid/video1.mp4" width="80%" loop></video>
 
 ---
 
@@ -456,7 +456,7 @@ class: center
 }
 ```
 
-<video controls autoplay src="/slides/css-grid/video2.mp4" width="60%" loop></video>
+<video controls autoplay src="slides/css-grid/video2.mp4" width="60%" loop></video>
 
 ---
 class: middle
@@ -488,7 +488,7 @@ class: middle
 
 加了`minmax`以后，右边再也不会有多出来的空间了。
 
-<video controls autoplay src="/slides/css-grid/video3.mp4" width="70%" loop></video>
+<video controls autoplay src="slides/css-grid/video3.mp4" width="70%" loop></video>
 
 ---
 class: center
@@ -522,7 +522,7 @@ class: center
 
 **有些格子可能为空，没有任何元素在上面，这显然不是我们想要的。**
 
-<video controls autoplay src="/slides/css-grid/video3.mp4" width="70%" loop></video>
+<video controls autoplay src="slides/css-grid/video3.mp4" width="70%" loop></video>
 
 ---
 
@@ -552,7 +552,7 @@ class: center
 }
 ```
 
-<video controls autoplay src="/slides/css-grid/video1.mp4" width="70%" loop></video>
+<video controls autoplay src="slides/css-grid/video1.mp4" width="70%" loop></video>
 
 ---
 

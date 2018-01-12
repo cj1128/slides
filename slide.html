@@ -23,22 +23,27 @@
       },
     })
 
-    // init websocket control
-    var ws = new WebSocket(`ws://${location.host}/ws`)
-    ws.onerror = () => console.log("WebSocket error")
-    ws.onopen = () => console.log("WebSocket connection established")
-    ws.onclose = () => console.log("WebSocket connection closed")
-    ws.onmessage = evt => {
-      switch(evt.data) {
-        case "gotoNextSlide":
-          slideshow.gotoNextSlide()
-          break
-        case "gotoPreviousSlide":
-          slideshow.gotoPreviousSlide()
-          break
-        default:
-          console.log("Unknown message:", msg)
+    function initWebSocket() {
+      var ws = new WebSocket(`ws://${location.host}/ws`)
+      ws.onerror = () => console.log("WebSocket error")
+      ws.onopen = () => console.log("WebSocket connection established")
+      ws.onclose = () => console.log("WebSocket connection closed")
+      ws.onmessage = evt => {
+        switch(evt.data) {
+          case "gotoNextSlide":
+            slideshow.gotoNextSlide()
+            break
+          case "gotoPreviousSlide":
+            slideshow.gotoPreviousSlide()
+            break
+          default:
+            console.log("Unknown message:", msg)
+        }
       }
+    }
+
+    if(location.port !== "") {
+      initWebSocket()
     }
   </script>
 </body>
