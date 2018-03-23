@@ -6,10 +6,11 @@ html {
 }
 
 h1, h2, h3, h4, h5, h6 {
+  font-family: "Yanone Kaffeesatz", Helvetica, sans-serif;
   font-weight: normal;
   margin-top: 10px;
   margin-bottom: 0;
-  line-height: 2em; font-family: "Yanone Kaffeesatz", Helvetica, sans-serif;
+  line-height: 2em;
 }
 
 /* 用于右上角标识 */
