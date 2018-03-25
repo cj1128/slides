@@ -6,7 +6,7 @@ html {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: "Yanone Kaffeesatz", Helvetica, sans-serif;
+  font-family: "Yanone Kaffeesatz";
   font-weight: normal;
   margin-top: 10px;
   margin-bottom: 0;
@@ -22,6 +22,7 @@ h3 {
 
 .remark-slide-number {
   font-size: 0.7rem;
+  font-family: monospace;
 }
 
 .remark-slide-content {
@@ -99,6 +100,24 @@ video {
 }
 
 /* Custom Classes */
+.Q, .A {
+  font-size: 1.7rem;
+  line-height: 3rem;
+  text-align: center;
+  display: block;
+}
+.Q {
+  color: #f7661c;
+}
+.Q::before {
+  content: "Q:  ";
+}
+.A {
+  color: #5f6cd2;
+}
+.A::before {
+  content: "A:  ";
+}
 
 .cover {
   text-align: center;

@@ -12,8 +12,10 @@
 <body>
   <script src="remark.min.js" type="text/javascript"></script>
   <script type="text/javascript">
-    var title = new URLSearchParams(location.search).get("title")
+    var query = new URLSearchParams(location.search)
+    var title = query.get("title")
     document.title = "CJ Ting's slide: " + title
+
     var slideshow = remark.create({
       sourceUrl: "slides/" + title + "/index.md",
       highlightLines: true,
