@@ -19,7 +19,7 @@ CSS Grid为二维栅格布局解决方案，我们的第一个问题是：
 一个栅格系统的基本属性有：
 
 - 有多少行？(`grid-template-rows`)
-- 有多少列？(`grid-template-rows`)
+- 有多少列？(`grid-template-columns`)
 - 行间距是多少？(`grid-row-gap`)
 - 列间距是多少？(`grid-column-gap`)
 
