@@ -1,0 +1,406 @@
+Async && Promise
+JS 中的异步处理
+25 Aug 2017
+.cover http://ww1.sinaimg.cn/large/9b85365dgy1fkc40w2mszj20m80m93zb
+
+CJ Ting
+
+* What is Async?
+
+* Async
+
+理解异步，我们需要首先理解另一个概念：*同步*。
+
+同步指的是：*前面的代码执行完毕以后，后面的代码才会执行*。
+
+而异步与之相对：*前面的代码没有执行完毕，后面的代码就开始执行*。
+
+  #lang js
+  sendMessage() // 这是一个同步调用
+  g() // g 函数调用时，我们可以确认：message 已经发出
+
+  sendMessageAsync() // 这是一个异步调用
+  m() // m 函数调用时，我们无法确定消息是否发出了，可能发出了，可能没发出，没有任何保证
+
+* Why Async?
+
+* Advantages of Async
+
+考虑如下代码。
+
+  #lang js
+  const content = readBigFile()
+  // 上面的代码读取一个大文件，是一个费时的 IO 操作
+  // 同步情况下，只有在文件读取完毕以后，后面的代码才会执行
+  // 这段时间内，CPU 为闲置状态
+  const val = calcSomething()
+
+异步解决的是计算机中一个十分普遍的问题：*充分利用*CPU，减少*CPU*闲置时间*。
+
+  #lang js
+  readBigFileAsync((err, content) => {
+    doSomethingAboutContent(content)
+  })
+  // 如果是异步调用，那么上面的函数会立即返回
+  // 下面的函数将得到执行，CPU在等IO数据的时间段内没有闲置
+  // 继续执行别的代码
+  const val = calcSomething()
+
+* Any problem with Async?
+
+* Problem(1)
+
+异步提高了机器效率，但是引入了一个问题：*编程复杂度*。
+
+对机器来说，异步是一个高效的方案，但对人来说，异步却不吻合人类的思考模型。
+
+人类的思维是线性的，即按顺序思考问题，但异步却不是线性的。举个简单的例子，我们要完成 a，b，c 三件事，彼此无关，等三件事都做完了以后，打印 "OK!"。
+
+* Problem(2)
+
+  #lang js
+  // 先来看同步代码，非常简单
+  a()
+  b()
+  c()
+  console.log("ok!")
+
+  // 再来看异步代码
+  let doneCount = 0
+  const callback = function() {
+    doneCount++
+
+    if(doneCount === 3) {
+      console.log("ok!")
+    }
+  }
+  a(callback)
+  b(callback)
+  c(callback)
+
+* Async in JS
+
+* JS Async API
+
+在 JS 中，主要有以下几个异步 API:
+
+- AJAX (XMLHTTPRequest)
+- setTimeout / setInterval
+
+我们可以利用 `setTimeout` 来构造自己的异步函数。
+
+  #lang js
+  function myAsyncFunc(callback) {
+    setTimeout(callback, 0)
+  }
+
+思考一个问题：直接调用 `function` 和使用 `myAsyncFunc(function)` 有什么区别？
+
+* Callback Hell
+
+异步函数因为立即返回，因此自然需要一种机制来让我们在函数执行完毕以后采取操作，最自然的做法就是回调。但是在复杂的异步情况下，回调会带来问题。
+
+考虑如下问题：睡眠 1000, 2000, 3000, 4000ms 以后执行函数 f1, f2, f3, f4。
+
+  setTimeout(function() {
+    f1()
+    setTimeout(function() {
+      f2()
+      setTimeout(function() {
+        f3()
+        setTimeout(function() {
+          f4()
+        }, 4000);
+      }, 3000);
+    }, 2000)
+  }, 1000)
+
+可以看到，当我们需要对多个异步进行管理时，很容易会产生一种情况：*回调地狱*。
+
+* Promise
+
+* Concept
+
+Promise 也叫 _Future_，中文翻译为 _承诺_，顾名思义，Promise 使用一个对象来封装异步状态，这个对象承诺在未来给你一个值。
+
+一个 Promise 有三种状态：
+
+- Resolved: 成功
+- Rejected: 失败
+- Pending: 待定
+
+* Construct Promie
+
+我们可以使用 ES6 提供的 Promise 构造函数来构造 Promise。
+
+  // p1 为一个在 1000ms 以后以 "ok" 值 Resolve 的 Promise
+  const p1 = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve("ok")
+    }, 1000)
+  })
+
+  // p2 为一个在 1000ms 后以 "error" 值 Reject 的 Promise
+  const p2 = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      reject("error")
+    }, 1000)
+  })
+
+* Core Methods
+
+对于 Promise 对象，我们有两个核心方法来操作它，每个方法都接收一个函数作为参数。
+
+- then: 当 Promise Resolve 时，执行传入的函数
+- catch: 当 Promise Reject 时，执行传入的函数
+
+  const p1 = getPromise()
+
+  p1
+    .then(val => {
+      console.log("resolved!")
+    })
+    .catch(err => {
+      console.log("rejected!")
+    })
+
+* Catch Is Just A Syntax Sugar
+
+实际上，`catch` 只是一个语法糖，Promise 只有一个核心方法 `then`, `then` 方法接收两个函数，第一个参数为 Resolve 时执行的函数，第二个参数为 Reject 时执行的函数。
+
+`catch(func)` 等于 `then(null,`func)`。
+
+  const p2 = getPromise()
+
+  p2.then(
+    val => {
+      console.log("resolved", val)
+    },
+    err => {
+      console.log("rejected", err)
+    }
+  )
+
+* Thenable(1)
+
+每一个 Promise 调用 `then` 以后，都会返回一个新的 Promise，从而实现链式调用。
+
+至于新的 Promise 是怎样的一个Promise，这里面涉及到一个复杂的规则，具体见[[https://promisesaplus.com/][Promise A+标准]]。
+
+我们只要记住两个原则：
+
+- 函数返回一个值（Primitive，数组，对象），那么新 Promise 以这个值 Resolve
+- 函数返回一个 Promise，那么新 Promise 的状态根据这个 Promise 决定
+
+* Thenable(2)
+
+  #lang js
+  p
+    .then(_ => {
+      return 123
+    }) // then返回一个以 123 resolve 的 Promise
+    .then(val => {
+      console.log(val) // 123
+      const p = Promsie.resolve("hello world")
+      return p
+    }) // then 返回的 Promise 就是根据 p 来决定
+    .then(val => {
+      console.log(val) // hello world
+    })
+
+* Common Utils
+
+下面我们来看一些常用的 Promise 辅助函数。
+
+  // 构建一个以 val 立即 Resolve 的 Promise
+  Promise.resolve(val)
+
+  // 构建一个以 val 立即 Reject 的 Promise
+  Promise.reject(val)
+
+  // 构建一个 Promise，在所有 Promise Resolve以后 Resolve
+  // Resolve 的值为一个数组，每一项为单个 Promise Resolve 的值
+  // 在任一 Promise Reject 以后 Reject
+  Promise.all([p1, p2, p3])
+
+* Promise Made Easy
+
+现在，我们来用 Promise 来解决之前的 _回调地狱_ 问题。
+
+  const makePromise = duration => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        reject(null) // 这里的值并不重要
+      }, duration)
+    })
+  }
+
+  makePromise(1000)
+    .then(() => (f1(), makePromise(2000)))
+    .then(() => (f2(), makePromise(2000)))
+    .then(() => (f3(), makePromise(3000)))
+    .then(() => (f4(), makePromise(4000)))
+
+* Better Way
+
+上面的 Promise 解法虽然看起来比回调的更清楚，因为使用扁平的方法调用替代了嵌套的回调，但是似乎并没有多么的高级，其实 Promise 的威力不止于此，我们来看一个更加高级的解法。
+
+  [
+    [1000, f1],
+    [2000, f2],
+    [3000, f3],
+    [4000, f4],
+  ].reduce((acc, config) => {
+    return acc.then(() => {
+      return makePromise(config[0]).then(() => {
+        config[1]()
+      })
+    })
+  }, Promise.resolve())
+
+* Promise Flow(1)
+
+Promise 通过简洁的方法调用 `then` 和 `catch` 来管理异步状态，从而使得复杂的异步调用关系变得十分清晰。
+
+思考下面代码的执行流程，即：每一个函数成功或者失败（Resolved / Rejected）时，代码的执行流是怎样的。
+
+* Promise Flow(2)
+
+  asyncThing1()
+    .then(function() {
+      return asyncThing2();
+    })
+    .then(function() {
+      return asyncThing3();
+    })
+    .catch(function(err) {
+      return asyncRecovery1();
+    })
+    .then(function() {
+      return asyncThing4();
+    }, function(err) {
+      return asyncRecovery2();
+    })
+    .catch(function(err) {
+      console.log("Don't worry about it");
+    })
+    .then(function() {
+      console.log("All done!");
+    })
+
+* Promise Flow(3)
+
+.image http://ww1.sinaimg.cn/large/9b85365dgy1fiv1fg6spaj20pm0mwgpg 500 _
+
+* Quiz: How to Render A Story?
+
+思考如下问题：
+
+我们要渲染一段故事，`getStory` 函数返回一个 story 对象，包含标题（heading）和每个章节的 URL（charpterURLs），`fetchCharpter` 函数可以获取到章节内容。
+
+渲染原则是：先标题，后章节，章节需要按顺序来渲染，先第一章，再第二章，再第三章。
+
+如何做到最优化渲染？
+
+试试看用 Callback 和 Promise 两种方法来编写，感受一下 Promise 的优点。
+
+  // 以下为一个错误的实现
+  getStory(storyURL, story => {
+    render(story.header)
+    story.charpterURLs.forEach(url => {
+      fetchCharpter(url, content => {
+        render(content)
+      })
+    })
+  })
+
+* Async && Await
+
+* Async && Await(1)
+
+ES7借鉴 C#，引入了 `async` 和 `await` 关键字，用来进一步简化 Promise 的编写，用法非常简单。
+
+`async` 用于声明一个异步函数，函数被调用时返回一个 Promise，Promise 以函数的返回值 Resolve，如果函数 throw error 的话，那么 Promise 以那个 error Reject。
+
+*`await`*只能在异步函数内才可以使用*，用于等待另一个异步函数调用完毕，如果该异步函数对应的 Promise Resolve，那么 `await` 返回值，如果该 Promise Reject，那么 `await` 丢错。
+
+* Async && Await(2)
+
+  // 声明一个异步函数
+  async function a() {
+    reutrn 123
+  }
+
+  // 调用一个异步函数返回一个 Promise
+  a().then(val => console.log(val)) // 输出：123
+
+  async function b() {
+    const v = await a() // v的值为123
+    console.log(v)
+  }
+
+  b() // 输出：123
+
+* Better and Cleaner Code
+
+考虑下面的 Promise 代码，下载数据，如果出错，下载备份数据，然后处理。
+
+  function getData() {
+    return downloadData()
+      .then(val => processData(val))
+      .catch(err => {
+        return downloadFallbackData().then(val => processData(val))
+      })
+  }
+
+使用 `async` 和 `await` 重构以后，更加清楚，和同步代码看起来一模一样了。
+
+  async function getData() {
+    let v
+    try {
+      v = await downloadData()
+    } catch {
+      v = await downloadFallbackData()
+    }
+    return processData(v)
+  }
+
+* Quiz Answer - Callback
+
+首先我们来定义最佳渲染策略：每个章节并行获取，但是串行渲染。
+
+我们先来考虑回调的解决方案，我们必须要做一个状态管理，即第几章的数据已经渲染。
+
+  const rendered = {}
+  const content = {}
+  getStory(storyURL, res => {
+    render(res.header)
+    res.charpterURLs.forEach((url, i) => {
+      fetchChapter(url, res => {
+        content[i] = res // 暂时存储内容
+        renderChapter(res, i)
+      })
+    })
+  })
+  const renderChapter = (res, i) =>{
+    // 渲染时首先检查上一章是否渲染
+    if(i !== 0 && rendered[i-1] === false) return
+    render(res)
+    rendered[i] = true
+    renderChapter(content[i+1], i+1)
+  }
+
+* Quiz Answer - Promie
+
+再来看看 Promise 的解决方案，干净，简单，利落。
+
+  getStory(storyURL)
+    .then(story => {
+      render(story.header)
+      return story.charpterURLs.map(url => fetchCharpter(url))
+        .reduce((acc, p) => {
+          return acc.then(() => p).then(res => {
+            render(res)
+          })
+        }, Promise.resolve())
+    })

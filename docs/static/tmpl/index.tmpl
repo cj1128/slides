@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>CJ's Slides</title>
+  <link rel="icon" href="/static/favicon.ico" type="image/x-icon"/>
+  <link type="text/css" rel="stylesheet" href="/static/index.css">
+  <link rel="stylesheet" type="text/css" href="//fonts.lug.ustc.edu.cn/css?family=Nanum+Pen+Script|Roboto">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>CJ's Slides</h1>
+    </header>
+
+    <div class="items">
+      {{ range .All }}
+        <a href="{{ .Path }}" class="item">
+          <div {{ with .Cover }} style="background-image: url({{ . }})" {{ end }}></div>
+          <p>{{ .Name }}</p>
+        </a>
+      {{ end }}
+    </div>
+  </div>
+
+  <!-- 友盟统计 -->
+  <div style="display: none">
+    <script type="text/javascript" src="https://s23.cnzz.com/z_stat.php?id=1277776204&web_id=1277776204"></script>
+  </div>
+</body>
+</html>

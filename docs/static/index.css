@@ -1,0 +1,56 @@
+body {
+  background: #F9F9F9;
+  font-size: 16px;
+}
+
+.container {
+  max-width: 1024px;
+  margin: auto;
+}
+
+header > h1 {
+  text-align: center;
+  font-family: "Nanum Pen Script";
+  font-size: 80px;
+  color: #484848;
+}
+
+.items {
+  display: grid;
+  padding: 0 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-column-gap: 5%;
+  grid-row-gap: 30px;
+  margin: 50px auto;
+}
+
+.item {
+  text-decoration: none;
+  box-shadow: 0 0px 5px 1px #ddd;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+}
+
+.item:hover {
+  box-shadow: 0 0px 6px 2px #bbb;
+}
+
+.item > div {
+  background-size: cover;
+  background-position: 50% 50%;
+  padding-top: 100%;
+}
+
+.item > p {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;;
+  background: white;
+  margin: 0;
+  padding: 20px 0;
+  font-family: Roboto;
+  text-align: center;
+  font-size: 1.2rem;
+}

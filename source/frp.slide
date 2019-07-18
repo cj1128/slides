@@ -1,0 +1,119 @@
+Functional Reactive Programming
+谈一谈「防连点检测」的解决思路
+10 Jan 2019
+.cover http://ww1.sinaimg.cn/large/9b85365dgy1g53u2ykmh1j20rs0rswhe
+
+CJ Ting
+
+* 什么是 Functional Reactive Programming ?
+
+_Functional_Reactive_Programming_ 简称为 FRP，是一种 *编程范式*，核心思想是使用 _Observable_ 来表示异步信息流，通过对流进行变换和组合，产生我们想要的结果。
+
+FRP 的优点是我们可以站在更高层的角度处理异步交互，不再需要使用各种变量追踪异步状态。
+
+FRP 有几乎所有语言的 Library，以下代码使用 [[https://rxjs-dev.firebaseapp.com/][RxJS]] 为例。
+
+* Observable
+
+一个 _Observable_ 就是一个流，用来表示一个无尽的序列，这个序列只有三种状态：产生值、产生错误，结束。
+
+.image http://ww1.sinaimg.cn/large/9b85365djw1f238lhm2c4j20e807974m.jpg
+
+* 对流进行变换
+
+我们可以将流认为是一个 *无尽的数组*，常规的数组操作，例如 `map`, `reduce`, `filter` 等，都可以对流进行操作。
+
+除此之外，还有很多方法用于对流进行变换组合，我们可以通过 [[http://rxmarbles.com/][RxMarbles]] 进行直观地感受。
+
+* 一个简单的例子
+
+考虑一个常见的「自动补全」场景：用户输入的时候，实时反馈补全建议。
+
+这个问题有如下点需要考虑：
+
+- 请求需要 Debounce
+- 用户的字符串需要大于一个长度才进行请求，否则太模糊，结果集太大
+- 如果两次待请求的输入相同，不应该请求（用户输入 ABC，触发请求，删除，重新再输入 ABC）
+- 用户更改输入的时候，关闭当前的结果
+- 需要考虑结果的有效性，例如，用户输入 "ABC"，当结果返回时，用户已经修改输入为 "DEF"，此时不应该显示结果
+
+* 常规方案
+
+.code frp/index.html /NORMAL START/,/NORMAL END/
+
+* FRP 方案
+
+使用 FRP 解决问题遵循一个相同的思路：构造流，变换组合，得到想要的结果。
+
+在这里，输入流是？感兴趣的结果流是？
+
+* FRP(1)
+
+输入流自然是用户的输入事件。
+
+我们首先获取到一个流表示「该发送请求了」。
+
+.code frp/index.html /FRP1 START/,/FRP1 END/
+
+* FRP(2)
+
+接下来我们监听上面的「发送请求流」，得到请求结果流。
+
+对流进行变换的一个主要方法是 `map`，根据旧值，产生一个新值。那么，如果产生的是一个流怎么办？大部分情况下，我们会希望这个子流的值出现在父流当中，这时我们使用 `flatMap` 方法即可。
+
+这里我们使用一个方法：`switchMap`，和 `flatMap` 相比，它只会处理父流的最新的值，丢弃之前的旧值。
+
+注意，RxJS 会自动将 Promise 处理为一个流。
+
+.image http://ww4.sinaimg.cn/large/9b85365djw1f23ftn0686j208z04cdg4.jpg
+
+* FRP(3)
+
+到了这里，我们监听结果流显示即可。
+
+.code frp/index.html /FRP1 START/,/FRP END/
+
+* 防连点问题
+
+考虑如下「防止连续点击」检测：
+
+- 在 3 分钟内点击次数不能超过 1000 次
+- 连续相同时间间隔的点击不超过 50 次
+
+输入流是什么？想要的结果流又是什么？
+
+* 某个时间段内的点击次数
+
+输入自然是点击事件，我们希望输出一个流告诉我们：用户点击次数超过指标了。
+
+- 按照固定时间切割流
+- 统计边界时的值
+- 计算两个边界的差值，差值代表的就是时间段的点击次数
+- 如果次数超过限制，输出
+
+    clicks
+      .pipe(mapTo(1))
+      .pipe(scan((acc, one) => acc + one, 0))
+      .pipe(sampleTime(3000))
+      .pipe(startWith(0))
+      .pipe(pairwise())
+      .pipe(map(([prev, next]) => next - prev))
+      .pipe(filter(x => x > 3))
+      .subscribe(x => console.log("检测到多次点击！", x))
+
+* 连续相同时间间隔的点击
+
+- 将输入流映射为时间间隔流
+- 对时间间隔进行“抹平“，即如果误差在一定范围内，认为是相同
+- 按照一定的数量进行分组
+- 如果组内的值都是相同，说明出现了连续点击
+
+    clicks
+      .pipe(map(_ => Date.now()))
+      .pipe(pairwise())
+      .pipe(map(([prev, next]) => next - prev))
+      .pipe(pairwise())
+      .pipe(map(([prev, next]) => Math.abs(prev - next) <= 50))
+      .pipe(bufferCount(10))
+      .pipe(map(items => items.every(x => x === true)))
+      .subscribe(() => console.log("检测到连续相同点击"))

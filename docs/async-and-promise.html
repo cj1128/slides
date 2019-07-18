@@ -1,0 +1,1239 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Async &amp;&amp; Promise</title>
+    <meta charset="utf-8">
+    <script src="/static/hljs/hljs.js"></script>
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="/static/hljs/hljs.css">
+    <script type="text/javascript">
+      hljs.initHighlightingOnLoad()
+    </script>
+
+    <script>
+      var notesEnabled =  false ;
+    </script>
+    <script src="/static/slide.js"></script>
+
+
+    
+  </head>
+
+  <body style="display: none">
+    <section class='slides layout-widescreen'>
+      <article>
+        <h1>Async &amp;&amp; Promise</h1>
+
+        
+          <h3>JS 中的异步处理 </h3>
+        
+
+        
+          <h3>25 August 2017
+        </h3>
+        
+
+        <p class="misc">
+          
+            
+
+            CJ Ting
+          
+        </p>
+      </article>
+
+      
+        <article >
+          
+            <h2>What is Async?</h2>
+          
+
+          <span class="pagenumber">2</span>
+        </article>
+      
+        <article >
+          
+            <h3>Async</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        理解异步，我们需要首先理解另一个概念：<b>同步</b>。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        同步指的是：<b>前面的代码执行完毕以后，后面的代码才会执行</b>。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        而异步与之相对：<b>前面的代码没有执行完毕，后面的代码就开始执行</b>。
+      
+    </p>
+  
+
+            
+              
+  
+    <div class="code">
+      <pre><code class="lang-js">sendMessage() // 这是一个同步调用
+g() // g 函数调用时，我们可以确认：message 已经发出
+
+sendMessageAsync() // 这是一个异步调用
+m() // m 函数调用时，我们无法确定消息是否发出了，可能发出了，可能没发出，没有任何保证</code></pre>
+    </div>
+  
+
+            
+          
+
+          <span class="pagenumber">3</span>
+        </article>
+      
+        <article >
+          
+            <h2>Why Async?</h2>
+          
+
+          <span class="pagenumber">4</span>
+        </article>
+      
+        <article >
+          
+            <h3>Advantages of Async</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        考虑如下代码。
+      
+    </p>
+  
+
+            
+              
+  
+    <div class="code">
+      <pre><code class="lang-js">const content = readBigFile()
+// 上面的代码读取一个大文件，是一个费时的 IO 操作
+// 同步情况下，只有在文件读取完毕以后，后面的代码才会执行
+// 这段时间内，CPU 为闲置状态
+const val = calcSomething()</code></pre>
+    </div>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        异步解决的是计算机中一个十分普遍的问题：<b>充分利用 CPU，减少 CPU 闲置时间</b>。
+      
+    </p>
+  
+
+            
+              
+  
+    <div class="code">
+      <pre><code class="lang-js">readBigFileAsync((err, content) =&gt; {
+  doSomethingAboutContent(content)
+})
+// 如果是异步调用，那么上面的函数会立即返回
+// 下面的函数将得到执行，CPU在等IO数据的时间段内没有闲置
+// 继续执行别的代码
+const val = calcSomething()</code></pre>
+    </div>
+  
+
+            
+          
+
+          <span class="pagenumber">5</span>
+        </article>
+      
+        <article >
+          
+            <h2>Any problem with Async?</h2>
+          
+
+          <span class="pagenumber">6</span>
+        </article>
+      
+        <article >
+          
+            <h3>Problem(1)</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        异步提高了机器效率，但是引入了一个问题：<b>编程复杂度</b>。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        对机器来说，异步是一个高效的方案，但对人来说，异步却不吻合人类的思考模型。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        人类的思维是线性的，即按顺序思考问题，但异步却不是线性的。举个简单的例子，我们要完成 a，b，c 三件事，彼此无关，等三件事都做完了以后，打印 &#34;OK!&#34;。
+      
+    </p>
+  
+
+            
+          
+
+          <span class="pagenumber">7</span>
+        </article>
+      
+        <article >
+          
+            <h3>Problem(2)</h3>
+
+            
+              
+  
+    <div class="code">
+      <pre><code class="lang-js">// 先来看同步代码，非常简单
+a()
+b()
+c()
+console.log(&#34;ok!&#34;)
+
+// 再来看异步代码
+let doneCount = 0
+const callback = function() {
+  doneCount&#43;&#43;
+
+  if(doneCount === 3) {
+    console.log(&#34;ok!&#34;)
+  }
+}
+a(callback)
+b(callback)
+c(callback)</code></pre>
+    </div>
+  
+
+            
+          
+
+          <span class="pagenumber">8</span>
+        </article>
+      
+        <article >
+          
+            <h2>Async in JS</h2>
+          
+
+          <span class="pagenumber">9</span>
+        </article>
+      
+        <article >
+          
+            <h3>JS Async API</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        在 JS 中，主要有以下几个异步 API:
+      
+    </p>
+  
+
+            
+              
+  <ul>
+  
+    <li>AJAX (XMLHTTPRequest)</li>
+  
+    <li>setTimeout / setInterval</li>
+  
+  </ul>
+
+            
+              
+  
+    <p>
+      
+        
+        我们可以利用 <code class="inline">setTimeout</code> 来构造自己的异步函数。
+      
+    </p>
+  
+
+            
+              
+  
+    <div class="code">
+      <pre><code class="lang-js">function myAsyncFunc(callback) {
+  setTimeout(callback, 0)
+}</code></pre>
+    </div>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        思考一个问题：直接调用 <code class="inline">function</code> 和使用 <code class="inline">myAsyncFunc(function)</code> 有什么区别？
+      
+    </p>
+  
+
+            
+          
+
+          <span class="pagenumber">10</span>
+        </article>
+      
+        <article >
+          
+            <h3>Callback Hell</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        异步函数因为立即返回，因此自然需要一种机制来让我们在函数执行完毕以后采取操作，最自然的做法就是回调。但是在复杂的异步情况下，回调会带来问题。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        考虑如下问题：睡眠 1000, 2000, 3000, 4000ms 以后执行函数 f1, f2, f3, f4。
+      
+    </p>
+  
+
+            
+              
+  
+    <div class="code">
+      <pre><code >setTimeout(function() {
+  f1()
+  setTimeout(function() {
+    f2()
+    setTimeout(function() {
+      f3()
+      setTimeout(function() {
+        f4()
+      }, 4000);
+    }, 3000);
+  }, 2000)
+}, 1000)</code></pre>
+    </div>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        可以看到，当我们需要对多个异步进行管理时，很容易会产生一种情况：<b>回调地狱</b>。
+      
+    </p>
+  
+
+            
+          
+
+          <span class="pagenumber">11</span>
+        </article>
+      
+        <article >
+          
+            <h2>Promise</h2>
+          
+
+          <span class="pagenumber">12</span>
+        </article>
+      
+        <article >
+          
+            <h3>Concept</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        Promise 也叫 <i>Future</i>，中文翻译为 <i>承诺</i>，顾名思义，Promise 使用一个对象来封装异步状态，这个对象承诺在未来给你一个值。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        一个 Promise 有三种状态：
+      
+    </p>
+  
+
+            
+              
+  <ul>
+  
+    <li>Resolved: 成功</li>
+  
+    <li>Rejected: 失败</li>
+  
+    <li>Pending: 待定</li>
+  
+  </ul>
+
+            
+          
+
+          <span class="pagenumber">13</span>
+        </article>
+      
+        <article >
+          
+            <h3>Construct Promie</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        我们可以使用 ES6 提供的 Promise 构造函数来构造 Promise。
+      
+    </p>
+  
+
+            
+              
+  
+    <div class="code">
+      <pre><code >// p1 为一个在 1000ms 以后以 &#34;ok&#34; 值 Resolve 的 Promise
+const p1 = new Promise((resolve, reject) =&gt; {
+  setTimeout(() =&gt; {
+    resolve(&#34;ok&#34;)
+  }, 1000)
+})
+
+// p2 为一个在 1000ms 后以 &#34;error&#34; 值 Reject 的 Promise
+const p2 = new Promise((resolve, reject) =&gt; {
+  setTimeout(() =&gt; {
+    reject(&#34;error&#34;)
+  }, 1000)
+})</code></pre>
+    </div>
+  
+
+            
+          
+
+          <span class="pagenumber">14</span>
+        </article>
+      
+        <article >
+          
+            <h3>Core Methods</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        对于 Promise 对象，我们有两个核心方法来操作它，每个方法都接收一个函数作为参数。
+      
+    </p>
+  
+
+            
+              
+  <ul>
+  
+    <li>then: 当 Promise Resolve 时，执行传入的函数</li>
+  
+    <li>catch: 当 Promise Reject 时，执行传入的函数</li>
+  
+  </ul>
+
+            
+              
+  
+    <div class="code">
+      <pre><code >const p1 = getPromise()
+
+p1
+  .then(val =&gt; {
+    console.log(&#34;resolved!&#34;)
+  })
+  .catch(err =&gt; {
+    console.log(&#34;rejected!&#34;)
+  })</code></pre>
+    </div>
+  
+
+            
+          
+
+          <span class="pagenumber">15</span>
+        </article>
+      
+        <article >
+          
+            <h3>Catch Is Just A Syntax Sugar</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        实际上，<code class="inline">catch</code> 只是一个语法糖，Promise 只有一个核心方法 <code class="inline">then</code>, <code class="inline">then</code> 方法接收两个函数，第一个参数为 Resolve 时执行的函数，第二个参数为 Reject 时执行的函数。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        <code class="inline">catch(func)</code> 等于 <code class="inline">then(null, func)</code>。
+      
+    </p>
+  
+
+            
+              
+  
+    <div class="code">
+      <pre><code >const p2 = getPromise()
+
+p2.then(
+  val =&gt; {
+    console.log(&#34;resolved&#34;, val)
+  },
+  err =&gt; {
+    console.log(&#34;rejected&#34;, err)
+  }
+)</code></pre>
+    </div>
+  
+
+            
+          
+
+          <span class="pagenumber">16</span>
+        </article>
+      
+        <article >
+          
+            <h3>Thenable(1)</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        每一个 Promise 调用 <code class="inline">then</code> 以后，都会返回一个新的 Promise，从而实现链式调用。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        至于新的 Promise 是怎样的一个Promise，这里面涉及到一个复杂的规则，具体见<a href="https://promisesaplus.com/" target="_blank">Promise A+标准</a>。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        我们只要记住两个原则：
+      
+    </p>
+  
+
+            
+              
+  <ul>
+  
+    <li>函数返回一个值（Primitive，数组，对象），那么新 Promise 以这个值 Resolve</li>
+  
+    <li>函数返回一个 Promise，那么新 Promise 的状态根据这个 Promise 决定</li>
+  
+  </ul>
+
+            
+          
+
+          <span class="pagenumber">17</span>
+        </article>
+      
+        <article >
+          
+            <h3>Thenable(2)</h3>
+
+            
+              
+  
+    <div class="code">
+      <pre><code class="lang-js">p
+  .then(_ =&gt; {
+    return 123
+  }) // then返回一个以 123 resolve 的 Promise
+  .then(val =&gt; {
+    console.log(val) // 123
+    const p = Promsie.resolve(&#34;hello world&#34;)
+    return p
+  }) // then 返回的 Promise 就是根据 p 来决定
+  .then(val =&gt; {
+    console.log(val) // hello world
+  })</code></pre>
+    </div>
+  
+
+            
+          
+
+          <span class="pagenumber">18</span>
+        </article>
+      
+        <article >
+          
+            <h3>Common Utils</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        下面我们来看一些常用的 Promise 辅助函数。
+      
+    </p>
+  
+
+            
+              
+  
+    <div class="code">
+      <pre><code >// 构建一个以 val 立即 Resolve 的 Promise
+Promise.resolve(val)
+
+// 构建一个以 val 立即 Reject 的 Promise
+Promise.reject(val)
+
+// 构建一个 Promise，在所有 Promise Resolve以后 Resolve
+// Resolve 的值为一个数组，每一项为单个 Promise Resolve 的值
+// 在任一 Promise Reject 以后 Reject
+Promise.all([p1, p2, p3])</code></pre>
+    </div>
+  
+
+            
+          
+
+          <span class="pagenumber">19</span>
+        </article>
+      
+        <article >
+          
+            <h3>Promise Made Easy</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        现在，我们来用 Promise 来解决之前的 <i>回调地狱</i> 问题。
+      
+    </p>
+  
+
+            
+              
+  
+    <div class="code">
+      <pre><code >const makePromise = duration =&gt; {
+  return new Promise((resolve, reject) =&gt; {
+    setTimeout(() =&gt; {
+      reject(null) // 这里的值并不重要
+    }, duration)
+  })
+}
+
+makePromise(1000)
+  .then(() =&gt; (f1(), makePromise(2000)))
+  .then(() =&gt; (f2(), makePromise(2000)))
+  .then(() =&gt; (f3(), makePromise(3000)))
+  .then(() =&gt; (f4(), makePromise(4000)))</code></pre>
+    </div>
+  
+
+            
+          
+
+          <span class="pagenumber">20</span>
+        </article>
+      
+        <article >
+          
+            <h3>Better Way</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        上面的 Promise 解法虽然看起来比回调的更清楚，因为使用扁平的方法调用替代了嵌套的回调，但是似乎并没有多么的高级，其实 Promise 的威力不止于此，我们来看一个更加高级的解法。
+      
+    </p>
+  
+
+            
+              
+  
+    <div class="code">
+      <pre><code >[
+  [1000, f1],
+  [2000, f2],
+  [3000, f3],
+  [4000, f4],
+].reduce((acc, config) =&gt; {
+  return acc.then(() =&gt; {
+    return makePromise(config[0]).then(() =&gt; {
+      config[1]()
+    })
+  })
+}, Promise.resolve())</code></pre>
+    </div>
+  
+
+            
+          
+
+          <span class="pagenumber">21</span>
+        </article>
+      
+        <article >
+          
+            <h3>Promise Flow(1)</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        Promise 通过简洁的方法调用 <code class="inline">then</code> 和 <code class="inline">catch</code> 来管理异步状态，从而使得复杂的异步调用关系变得十分清晰。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        思考下面代码的执行流程，即：每一个函数成功或者失败（Resolved / Rejected）时，代码的执行流是怎样的。
+      
+    </p>
+  
+
+            
+          
+
+          <span class="pagenumber">22</span>
+        </article>
+      
+        <article >
+          
+            <h3>Promise Flow(2)</h3>
+
+            
+              
+  
+    <div class="code">
+      <pre><code >asyncThing1()
+  .then(function() {
+    return asyncThing2();
+  })
+  .then(function() {
+    return asyncThing3();
+  })
+  .catch(function(err) {
+    return asyncRecovery1();
+  })
+  .then(function() {
+    return asyncThing4();
+  }, function(err) {
+    return asyncRecovery2();
+  })
+  .catch(function(err) {
+    console.log(&#34;Don&#39;t worry about it&#34;);
+  })
+  .then(function() {
+    console.log(&#34;All done!&#34;);
+  })</code></pre>
+    </div>
+  
+
+            
+          
+
+          <span class="pagenumber">23</span>
+        </article>
+      
+        <article >
+          
+            <h3>Promise Flow(3)</h3>
+
+            
+              
+  <div class="image">
+    <img src="http://ww1.sinaimg.cn/large/9b85365dgy1fiv1fg6spaj20pm0mwgpg"  height="500"  >
+  </div>
+
+            
+          
+
+          <span class="pagenumber">24</span>
+        </article>
+      
+        <article >
+          
+            <h3>Quiz: How to Render A Story?</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        思考如下问题：
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        我们要渲染一段故事，<code class="inline">getStory</code> 函数返回一个 story 对象，包含标题（heading）和每个章节的 URL（charpterURLs），<code class="inline">fetchCharpter</code> 函数可以获取到章节内容。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        渲染原则是：先标题，后章节，章节需要按顺序来渲染，先第一章，再第二章，再第三章。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        如何做到最优化渲染？
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        试试看用 Callback 和 Promise 两种方法来编写，感受一下 Promise 的优点。
+      
+    </p>
+  
+
+            
+              
+  
+    <div class="code">
+      <pre><code >// 以下为一个错误的实现
+getStory(storyURL, story =&gt; {
+  render(story.header)
+  story.charpterURLs.forEach(url =&gt; {
+    fetchCharpter(url, content =&gt; {
+      render(content)
+    })
+  })
+})</code></pre>
+    </div>
+  
+
+            
+          
+
+          <span class="pagenumber">25</span>
+        </article>
+      
+        <article >
+          
+            <h2>Async &amp;&amp; Await</h2>
+          
+
+          <span class="pagenumber">26</span>
+        </article>
+      
+        <article >
+          
+            <h3>Async &amp;&amp; Await(1)</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        ES7借鉴 C#，引入了 <code class="inline">async</code> 和 <code class="inline">await</code> 关键字，用来进一步简化 Promise 的编写，用法非常简单。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        <code class="inline">async</code> 用于声明一个异步函数，函数被调用时返回一个 Promise，Promise 以函数的返回值 Resolve，如果函数 throw error 的话，那么 Promise 以那个 error Reject。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        <b>`await` 只能在异步函数内才可以使用</b>，用于等待另一个异步函数调用完毕，如果该异步函数对应的 Promise Resolve，那么 <code class="inline">await</code> 返回值，如果该 Promise Reject，那么 <code class="inline">await</code> 丢错。
+      
+    </p>
+  
+
+            
+          
+
+          <span class="pagenumber">27</span>
+        </article>
+      
+        <article >
+          
+            <h3>Async &amp;&amp; Await(2)</h3>
+
+            
+              
+  
+    <div class="code">
+      <pre><code >// 声明一个异步函数
+async function a() {
+  reutrn 123
+}
+
+// 调用一个异步函数返回一个 Promise
+a().then(val =&gt; console.log(val)) // 输出：123
+
+async function b() {
+  const v = await a() // v的值为123
+  console.log(v)
+}
+
+b() // 输出：123</code></pre>
+    </div>
+  
+
+            
+          
+
+          <span class="pagenumber">28</span>
+        </article>
+      
+        <article >
+          
+            <h3>Better and Cleaner Code</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        考虑下面的 Promise 代码，下载数据，如果出错，下载备份数据，然后处理。
+      
+    </p>
+  
+
+            
+              
+  
+    <div class="code">
+      <pre><code >function getData() {
+  return downloadData()
+    .then(val =&gt; processData(val))
+    .catch(err =&gt; {
+      return downloadFallbackData().then(val =&gt; processData(val))
+    })
+}</code></pre>
+    </div>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        使用 <code class="inline">async</code> 和 <code class="inline">await</code> 重构以后，更加清楚，和同步代码看起来一模一样了。
+      
+    </p>
+  
+
+            
+              
+  
+    <div class="code">
+      <pre><code >async function getData() {
+  let v
+  try {
+    v = await downloadData()
+  } catch {
+    v = await downloadFallbackData()
+  }
+  return processData(v)
+}</code></pre>
+    </div>
+  
+
+            
+          
+
+          <span class="pagenumber">29</span>
+        </article>
+      
+        <article >
+          
+            <h3>Quiz Answer - Callback</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        首先我们来定义最佳渲染策略：每个章节并行获取，但是串行渲染。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        我们先来考虑回调的解决方案，我们必须要做一个状态管理，即第几章的数据已经渲染。
+      
+    </p>
+  
+
+            
+              
+  
+    <div class="code">
+      <pre><code >const rendered = {}
+const content = {}
+getStory(storyURL, res =&gt; {
+  render(res.header)
+  res.charpterURLs.forEach((url, i) =&gt; {
+    fetchChapter(url, res =&gt; {
+      content[i] = res // 暂时存储内容
+      renderChapter(res, i)
+    })
+  })
+})
+const renderChapter = (res, i) =&gt;{
+  // 渲染时首先检查上一章是否渲染
+  if(i !== 0 &amp;&amp; rendered[i-1] === false) return
+  render(res)
+  rendered[i] = true
+  renderChapter(content[i&#43;1], i&#43;1)
+}</code></pre>
+    </div>
+  
+
+            
+          
+
+          <span class="pagenumber">30</span>
+        </article>
+      
+        <article >
+          
+            <h3>Quiz Answer - Promie</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        再来看看 Promise 的解决方案，干净，简单，利落。
+      
+    </p>
+  
+
+            
+              
+  
+    <div class="code">
+      <pre><code >getStory(storyURL)
+  .then(story =&gt; {
+    render(story.header)
+    return story.charpterURLs.map(url =&gt; fetchCharpter(url))
+      .reduce((acc, p) =&gt; {
+        return acc.then(() =&gt; p).then(res =&gt; {
+          render(res)
+        })
+      }, Promise.resolve())
+  })</code></pre>
+    </div>
+  
+
+            
+          
+
+          <span class="pagenumber">31</span>
+        </article>
+      
+
+      <article>
+        <h3>Thank you</h3>
+
+        <p class="misc">
+          
+            
+
+            CJ Ting
+          
+        </p>
+      </article>
+    </section>
+
+    <div id="help">
+      Use the left and right arrow keys or click the left and right
+      edges of the page to navigate between slides.<br>
+      (Press 'H' or navigate to hide this message.)
+    </div>
+
+    
+    <div style="display: none">
+      <script type="text/javascript" src="https://s23.cnzz.com/z_stat.php?id=1277776204&web_id=1277776204"></script>
+    </div>
+  </body>
+</html>

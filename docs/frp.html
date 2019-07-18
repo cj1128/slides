@@ -1,0 +1,593 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Functional Reactive Programming</title>
+    <meta charset="utf-8">
+    <script src="/static/hljs/hljs.js"></script>
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="/static/hljs/hljs.css">
+    <script type="text/javascript">
+      hljs.initHighlightingOnLoad()
+    </script>
+
+    <script>
+      var notesEnabled =  false ;
+    </script>
+    <script src="/static/slide.js"></script>
+
+
+    
+  </head>
+
+  <body style="display: none">
+    <section class='slides layout-widescreen'>
+      <article>
+        <h1>Functional Reactive Programming</h1>
+
+        
+          <h3>谈一谈「防连点检测」的解决思路 </h3>
+        
+
+        
+          <h3>10 January 2019
+        </h3>
+        
+
+        <p class="misc">
+          
+            
+
+            CJ Ting
+          
+        </p>
+      </article>
+
+      
+        <article >
+          
+            <h3>什么是 Functional Reactive Programming ?</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        <i>Functional Reactive Programming</i> 简称为 FRP，是一种 <b>编程范式</b>，核心思想是使用 <i>Observable</i> 来表示异步信息流，通过对流进行变换和组合，产生我们想要的结果。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        FRP 的优点是我们可以站在更高层的角度处理异步交互，不再需要使用各种变量追踪异步状态。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        FRP 有几乎所有语言的 Library，以下代码使用 <a href="https://rxjs-dev.firebaseapp.com/" target="_blank">RxJS</a> 为例。
+      
+    </p>
+  
+
+            
+          
+
+          <span class="pagenumber">2</span>
+        </article>
+      
+        <article >
+          
+            <h3>Observable</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        一个 <i>Observable</i> 就是一个流，用来表示一个无尽的序列，这个序列只有三种状态：产生值、产生错误，结束。
+      
+    </p>
+  
+
+            
+              
+  <div class="image">
+    <img src="http://ww1.sinaimg.cn/large/9b85365djw1f238lhm2c4j20e807974m.jpg"  >
+  </div>
+
+            
+          
+
+          <span class="pagenumber">3</span>
+        </article>
+      
+        <article >
+          
+            <h3>对流进行变换</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        我们可以将流认为是一个 <b>无尽的数组</b>，常规的数组操作，例如 <code class="inline">map</code>, <code class="inline">reduce</code>, <code class="inline">filter</code> 等，都可以对流进行操作。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        除此之外，还有很多方法用于对流进行变换组合，我们可以通过 <a href="http://rxmarbles.com/" target="_blank">RxMarbles</a> 进行直观地感受。
+      
+    </p>
+  
+
+            
+          
+
+          <span class="pagenumber">4</span>
+        </article>
+      
+        <article >
+          
+            <h3>一个简单的例子</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        考虑一个常见的「自动补全」场景：用户输入的时候，实时反馈补全建议。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        这个问题有如下点需要考虑：
+      
+    </p>
+  
+
+            
+              
+  <ul>
+  
+    <li>请求需要 Debounce</li>
+  
+    <li>用户的字符串需要大于一个长度才进行请求，否则太模糊，结果集太大</li>
+  
+    <li>如果两次待请求的输入相同，不应该请求（用户输入 ABC，触发请求，删除，重新再输入 ABC）</li>
+  
+    <li>用户更改输入的时候，关闭当前的结果</li>
+  
+    <li>需要考虑结果的有效性，例如，用户输入 &#34;ABC&#34;，当结果返回时，用户已经修改输入为 &#34;DEF&#34;，此时不应该显示结果</li>
+  
+  </ul>
+
+            
+          
+
+          <span class="pagenumber">5</span>
+        </article>
+      
+        <article >
+          
+            <h3>常规方案</h3>
+
+            
+              
+  <div class="code">
+    <pre><code>      let currentQuery = null
+      let lastQuery = null
+      let lastResult = null
+
+      input.addEventListener("keyup", () => {
+        currentQuery = input.value
+        hideSuggestions()
+      })
+
+      input.addEventListener("keydown", _.debounce(() => {
+        const query = input.value
+        if(query.length <= 2) return
+        if(query === lastQuery) return showSuggestions(lastResult)
+        lastQuery = query
+        getSuggestions(query)
+          .then(result => {
+            if(currentQuery === query) {
+              lastResult = result
+              showSuggestions(result)
+            }
+          })
+      }, 500))
+</code></pre>
+  </div>
+
+            
+          
+
+          <span class="pagenumber">6</span>
+        </article>
+      
+        <article >
+          
+            <h3>FRP 方案</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        使用 FRP 解决问题遵循一个相同的思路：构造流，变换组合，得到想要的结果。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        在这里，输入流是？感兴趣的结果流是？
+      
+    </p>
+  
+
+            
+          
+
+          <span class="pagenumber">7</span>
+        </article>
+      
+        <article >
+          
+            <h3>FRP(1)</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        输入流自然是用户的输入事件。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        我们首先获取到一个流表示「该发送请求了」。
+      
+    </p>
+  
+
+            
+              
+  <div class="code">
+    <pre><code>      const clicks= fromEvent(input, "keyup")
+
+      const sendRequest = clicks
+        .pipe(debounceTime(500))
+        .pipe(map(evt => evt.target.value))
+        .pipe(filter(x => x.length > 2))
+        .pipe(distinctUntilChanged())
+</code></pre>
+  </div>
+
+            
+          
+
+          <span class="pagenumber">8</span>
+        </article>
+      
+        <article >
+          
+            <h3>FRP(2)</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        接下来我们监听上面的「发送请求流」，得到请求结果流。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        对流进行变换的一个主要方法是 <code class="inline">map</code>，根据旧值，产生一个新值。那么，如果产生的是一个流怎么办？大部分情况下，我们会希望这个子流的值出现在父流当中，这时我们使用 <code class="inline">flatMap</code> 方法即可。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        这里我们使用一个方法：<code class="inline">switchMap</code>，和 <code class="inline">flatMap</code> 相比，它只会处理父流的最新的值，丢弃之前的旧值。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        注意，RxJS 会自动将 Promise 处理为一个流。
+      
+    </p>
+  
+
+            
+              
+  <div class="image">
+    <img src="http://ww4.sinaimg.cn/large/9b85365djw1f23ftn0686j208z04cdg4.jpg"  >
+  </div>
+
+            
+          
+
+          <span class="pagenumber">9</span>
+        </article>
+      
+        <article >
+          
+            <h3>FRP(3)</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        到了这里，我们监听结果流显示即可。
+      
+    </p>
+  
+
+            
+              
+  <div class="code">
+    <pre><code>      const clicks= fromEvent(input, "keyup")
+
+      const sendRequest = clicks
+        .pipe(debounceTime(500))
+        .pipe(map(evt => evt.target.value))
+        .pipe(filter(x => x.length > 2))
+        .pipe(distinctUntilChanged())
+
+      sendRequest
+        .pipe(switchMap(getSuggestions))
+        .subscribe(showSuggestions)
+
+      clicks.subscribe(hideSuggestions)
+</code></pre>
+  </div>
+
+            
+          
+
+          <span class="pagenumber">10</span>
+        </article>
+      
+        <article >
+          
+            <h3>防连点问题</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        考虑如下「防止连续点击」检测：
+      
+    </p>
+  
+
+            
+              
+  <ul>
+  
+    <li>在 3 分钟内点击次数不能超过 1000 次</li>
+  
+    <li>连续相同时间间隔的点击不超过 50 次</li>
+  
+  </ul>
+
+            
+              
+  
+    <p>
+      
+        
+        输入流是什么？想要的结果流又是什么？
+      
+    </p>
+  
+
+            
+          
+
+          <span class="pagenumber">11</span>
+        </article>
+      
+        <article >
+          
+            <h3>某个时间段内的点击次数</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        输入自然是点击事件，我们希望输出一个流告诉我们：用户点击次数超过指标了。
+      
+    </p>
+  
+
+            
+              
+  <ul>
+  
+    <li>按照固定时间切割流</li>
+  
+    <li>统计边界时的值</li>
+  
+    <li>计算两个边界的差值，差值代表的就是时间段的点击次数</li>
+  
+    <li>如果次数超过限制，输出</li>
+  
+  </ul>
+
+            
+              
+  
+    <div class="code">
+      <pre><code >clicks
+  .pipe(mapTo(1))
+  .pipe(scan((acc, one) =&gt; acc &#43; one, 0))
+  .pipe(sampleTime(3000))
+  .pipe(startWith(0))
+  .pipe(pairwise())
+  .pipe(map(([prev, next]) =&gt; next - prev))
+  .pipe(filter(x =&gt; x &gt; 3))
+  .subscribe(x =&gt; console.log(&#34;检测到多次点击！&#34;, x))</code></pre>
+    </div>
+  
+
+            
+          
+
+          <span class="pagenumber">12</span>
+        </article>
+      
+        <article >
+          
+            <h3>连续相同时间间隔的点击</h3>
+
+            
+              
+  <ul>
+  
+    <li>将输入流映射为时间间隔流</li>
+  
+    <li>对时间间隔进行“抹平“，即如果误差在一定范围内，认为是相同</li>
+  
+    <li>按照一定的数量进行分组</li>
+  
+    <li>如果组内的值都是相同，说明出现了连续点击</li>
+  
+  </ul>
+
+            
+              
+  
+    <div class="code">
+      <pre><code >clicks
+  .pipe(map(_ =&gt; Date.now()))
+  .pipe(pairwise())
+  .pipe(map(([prev, next]) =&gt; next - prev))
+  .pipe(pairwise())
+  .pipe(map(([prev, next]) =&gt; Math.abs(prev - next) &lt;= 50))
+  .pipe(bufferCount(10))
+  .pipe(map(items =&gt; items.every(x =&gt; x === true)))
+  .subscribe(() =&gt; console.log(&#34;检测到连续相同点击&#34;))</code></pre>
+    </div>
+  
+
+            
+          
+
+          <span class="pagenumber">13</span>
+        </article>
+      
+
+      <article>
+        <h3>Thank you</h3>
+
+        <p class="misc">
+          
+            
+
+            CJ Ting
+          
+        </p>
+      </article>
+    </section>
+
+    <div id="help">
+      Use the left and right arrow keys or click the left and right
+      edges of the page to navigate between slides.<br>
+      (Press 'H' or navigate to hide this message.)
+    </div>
+
+    
+    <div style="display: none">
+      <script type="text/javascript" src="https://s23.cnzz.com/z_stat.php?id=1277776204&web_id=1277776204"></script>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>FRP Demo</title>
+  <script type="text/javascript" src="lodash.min.js"></script>
+  <script type="text/javascript" src="rxjs.umd.min.js"></script>
+</head>
+<body>
+  <input type="" name="" autofocus>
+  <ul></ul>
+
+  <script type="text/javascript">
+    const input = document.querySelector("input")
+    const ul = document.querySelector("ul")
+
+    function getSuggestions(query) {
+      console.log("send request")
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve(Array.from({length: 10}, (x, i) => `result ${i} for ${query}`))
+        }, 500 + Math.random() * 1000)
+      })
+    }
+
+    function hideSuggestions() {
+      ul.innerHTML = ""
+    }
+
+    function showSuggestions(result) {
+      ul.innerHTML = ""
+
+      result.forEach(item => {
+        const li = document.createElement("li")
+        li.innerText = item
+        ul.appendChild(li)
+      })
+    }
+
+    function normalMode() {
+      // NORMAL START OMIT
+      let currentQuery = null
+      let lastQuery = null
+      let lastResult = null
+
+      input.addEventListener("keyup", () => {
+        currentQuery = input.value
+        hideSuggestions()
+      })
+
+      input.addEventListener("keydown", _.debounce(() => {
+        const query = input.value
+        if(query.length <= 2) return
+        if(query === lastQuery) return showSuggestions(lastResult)
+        lastQuery = query
+        getSuggestions(query)
+          .then(result => {
+            if(currentQuery === query) {
+              lastResult = result
+              showSuggestions(result)
+            }
+          })
+      }, 500))
+      // NORMAL END OMIT
+    }
+
+    function frpMode() {
+      const {fromEvent, pipe, interval, combineLatest} = rxjs
+      const {debounceTime, map, switchMap, filter, distinctUntilChanged} = rxjs.operators
+
+      // FRP1 START OMIT
+      const clicks= fromEvent(input, "keyup")
+
+      const sendRequest = clicks
+        .pipe(debounceTime(500))
+        .pipe(map(evt => evt.target.value))
+        .pipe(filter(x => x.length > 2))
+        .pipe(distinctUntilChanged())
+        // FRP1 END OMIT
+
+      sendRequest
+        .pipe(switchMap(getSuggestions))
+        .subscribe(showSuggestions)
+
+      clicks.subscribe(hideSuggestions)
+
+      // FRP END OMIT
+    }
+
+    frpMode()
+  </script>
+</body>
+</html>

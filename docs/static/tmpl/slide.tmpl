@@ -1,0 +1,188 @@
+{{ define "section" }}
+  <h{{ len .Number }} id="TOC_{{ .FormattedNumber }}">{{ .FormattedNumber }} {{ .Title }}</h{{ len .Number }}>
+  {{ range .Elem }}
+    {{ elem $.Template . }}
+  {{ end }}
+{{ end }}
+
+{{ define "list" }}
+  <ul>
+  {{ range .Bullet }}
+    <li>{{ style . }}</li>
+  {{ end }}
+  </ul>
+{{ end }}
+
+{{ define "text" }}
+  {{ if .Pre }}
+    <div class="code">
+      <pre><code {{ with .Lang }}class="lang-{{ . }}"{{ end }}>{{ range .Lines }}{{ . }}{{ end }}</code></pre>
+    </div>
+  {{ else }}
+    <p>
+      {{ range $i, $l := .Lines }}
+        {{ if $i }}
+          {{ template "newline" }}
+        {{ end }}
+        {{ style $l }}
+      {{ end }}
+    </p>
+  {{ end }}
+{{ end }}
+
+{{ define "code" }}
+  <div class="code">
+    <pre><code>{{ .Text }}</code></pre>
+  </div>
+{{ end }}
+
+{{ define "image" }}
+  <div class="image">
+    <img src="{{ .URL }}" {{ with .Height }} height="{{ . }}" {{ end }} {{ with .Width }} width="{{ . }}" {{ end }}>
+  </div>
+{{ end }}
+
+{{define "video"}}
+  <div class="video">
+    <video
+      {{ with .Height }} height="{{ . }}" {{ end }}
+      {{ with .Width }} width="{{ . }}" {{ end }}
+      controls
+    >
+      <source src="{{ .URL }}" type="{{ .SourceType }}">
+    </video>
+  </div>
+{{ end }}
+
+{{ define "background" }}
+<div class="background">
+  <img src="{{ .URL }}">
+</div>
+{{ end }}
+
+{{ define "iframe" }}
+  <iframe
+    src="{{ .URL }}"
+    {{ with .Height }} height="{{ . }}" {{ end }}
+    {{ with .Width }} width="{{ . }}" {{ end }}
+  >
+  </iframe>
+{{ end }}
+
+{{ define "link" }}
+  <p class="link">
+    <a href="{{ .URL }}" target="_blank">
+      {{style .Label}}
+    </a>
+  </p>
+{{ end }}
+
+{{ define "html" }}
+  {{ .HTML }}
+{{ end }}
+
+{{ define "caption" }}
+  <figcaption>
+    {{ style .Text }}
+  </figcaption>
+{{ end }}
+
+{{ define "newline" }}
+<br />
+{{ end }}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{ .Title }}</title>
+    <meta charset="utf-8">
+    <script src="/static/hljs/hljs.js"></script>
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="/static/hljs/hljs.css">
+    <script type="text/javascript">
+      hljs.initHighlightingOnLoad()
+    </script>
+
+    <script>
+      var notesEnabled = {{ .NotesEnabled }};
+    </script>
+    <script src="/static/slide.js"></script>
+
+
+    {{ if .NotesEnabled }}
+      <script>
+        var sections = {{ .Sections }};
+      </script>
+
+      <script src="/static/note.js"></script>
+    {{ end }}
+  </head>
+
+  <body style="display: none">
+    <section class='slides layout-widescreen'>
+      <article>
+        <h1>{{ .Title }}</h1>
+
+        {{ with .Subtitle }}
+          <h3>{{ . }} </h3>
+        {{ end }}
+
+        {{ if not .Time.IsZero }}
+          <h3>{{.Time.Format "2 January 2006"}}
+        </h3>
+        {{ end }}
+
+        <p class="misc">
+          {{ range $i, $l := .Misc }}
+            {{ if $i }}
+              {{ template "newline" }}
+            {{ end }}
+
+            {{ style $l }}
+          {{ end }}
+        </p>
+      </article>
+
+      {{ range $i, $s := .Sections }}
+        <article {{ $s.HTMLAttributes }}>
+          {{ if $s.Elem }}
+            <h3>{{ $s.Title }}</h3>
+
+            {{ range $s.Elem }}
+              {{ elem $.Template . }}
+            {{ end }}
+          {{ else }}
+            <h2>{{ $s.Title }}</h2>
+          {{ end }}
+
+          <span class="pagenumber">{{ pagenum $s 1 }}</span>
+        </article>
+      {{ end }}
+
+      <article>
+        <h3>Thank you</h3>
+
+        <p class="misc">
+          {{ range $i, $l := .Misc }}
+            {{ if $i }}
+              {{ template "newline" }}
+            {{ end }}
+
+            {{ style $l }}
+          {{ end }}
+        </p>
+      </article>
+    </section>
+
+    <div id="help">
+      Use the left and right arrow keys or click the left and right
+      edges of the page to navigate between slides.<br>
+      (Press 'H' or navigate to hide this message.)
+    </div>
+
+    <!-- 友盟统计 -->
+    <div style="display: none">
+      <script type="text/javascript" src="https://s23.cnzz.com/z_stat.php?id=1277776204&web_id=1277776204"></script>
+    </div>
+  </body>
+</html>
