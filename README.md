@@ -2,6 +2,7 @@
 
 ## 2019
 
+- [XSS & CSRF](https://slides.cjting.me/xss-csrf.html)
 - [Functional Reactive Programming](https://slides.cjting.me/frp.html)
 
 ## 2018

